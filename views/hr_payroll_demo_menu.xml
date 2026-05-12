@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_hr_payroll_demo_root"
+              name="Payroll Demo Enterprise"
+              web_icon="hr,static/description/icon.png"
+              sequence="35"/>
+
+    <menuitem id="menu_hr_payroll_demo_dashboard"
+              name="Operations Dashboard"
+              parent="menu_hr_payroll_demo_root"
+              action="action_hr_payroll_demo_dashboard"
+              sequence="1"/>
+
+    <menuitem id="menu_hr_payroll_demo_operations"
+              name="Operations"
+              parent="menu_hr_payroll_demo_root"
+              sequence="10"/>
+
+    <menuitem id="menu_hr_payroll_demo_contract_templates"
+              name="Contract Templates"
+              parent="menu_hr_payroll_demo_operations"
+              action="hr.action_hr_contract_templates"
+              sequence="5"/>
+
+    <menuitem id="menu_hr_payroll_demo_bank_transfer"
+              name="Bank Transfers"
+              parent="menu_hr_payroll_demo_operations"
+              action="action_hr_payroll_demo_bank_transfer"
+              sequence="10"/>
+
+    <menuitem id="menu_hr_payroll_demo_expenses"
+              name="Employee Expenses"
+              parent="menu_hr_payroll_demo_operations"
+              action="hr_expense.action_hr_expense_account"
+              sequence="15"/>
+
+    <menuitem id="menu_hr_payroll_demo_accrual_plans"
+              name="Accrual Plans"
+              parent="menu_hr_payroll_demo_operations"
+              action="hr_holidays.open_view_accrual_plans"
+              sequence="18"/>
+
+    <menuitem id="menu_hr_payroll_demo_mass_operation"
+              name="Mass Operations"
+              parent="menu_hr_payroll_demo_operations"
+              action="action_hr_payroll_demo_mass_operation"
+              sequence="20"/>
+
+    <menuitem id="menu_hr_payroll_demo_training"
+              name="Training &amp; Certifications"
+              parent="menu_hr_payroll_demo_operations"
+              action="action_hr_payroll_demo_training"
+              sequence="30"/>
+
+    <menuitem id="menu_hr_payroll_demo_training_attendance"
+              name="Attendance Records"
+              parent="menu_hr_payroll_demo_operations"
+              action="action_hr_payroll_demo_training_attendance"
+              sequence="35"/>
+
+    <menuitem id="menu_hr_payroll_demo_knowledge_ask"
+              name="Ask Knowledge AI"
+              parent="menu_hr_payroll_demo_operations"
+              action="action_hr_payroll_demo_knowledge_ask"
+              sequence="40"/>
+
+    <menuitem id="menu_hr_payroll_demo_reports"
+              name="Reports"
+              parent="menu_hr_payroll_demo_root"
+              sequence="20"/>
+
+    <record id="action_hr_payroll_demo_accounting_entries" model="ir.actions.act_window">
+        <field name="name">HR &amp; Payroll Accounting Entries</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('ref', 'ilike', 'ALLNETWORKS HR Accounting')]</field>
+        <field name="context">{'default_move_type': 'entry'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No accounting entries yet</p>
+            <p>Demo HR, payroll, expense, bank and accrual journal entries will appear here.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_hr_payroll_demo_scenarios"
+              name="Demo Scenarios"
+              parent="menu_hr_payroll_demo_reports"
+              action="action_hr_payroll_demo_scenario"
+              sequence="10"/>
+
+    <menuitem id="menu_hr_payroll_demo_department_summary"
+              name="Department Payroll Summary"
+              parent="menu_hr_payroll_demo_reports"
+              action="action_hr_payroll_demo_department_summary"
+              sequence="20"/>
+
+    <menuitem id="menu_hr_payroll_demo_reconciliation"
+              name="Payroll Reconciliation"
+              parent="menu_hr_payroll_demo_reports"
+              action="action_hr_payroll_demo_reconciliation"
+              sequence="30"/>
+
+    <menuitem id="menu_hr_payroll_demo_accounting_entries"
+              name="Accounting Entries"
+              parent="menu_hr_payroll_demo_reports"
+              action="action_hr_payroll_demo_accounting_entries"
+              sequence="40"/>
+</odoo>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payroll_demo_mass_operation_list" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.mass.operation.list</field>
+        <field name="model">hr.payroll.demo.mass.operation</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'done'" decoration-danger="state == 'failed'">
+                <field name="name"/>
+                <field name="operation_type"/>
+                <field name="department_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="affected_employee_count"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_mass_operation_form" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.mass.operation.form</field>
+        <field name="model">hr.payroll.demo.mass.operation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_execute" type="object" string="Execute" class="btn-primary" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done,failed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="operation_type"/>
+                            <field name="department_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="affected_employee_count"/>
+                        </group>
+                    </group>
+                    <group string="Execution Result">
+                        <field name="result_summary" nolabel="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_demo_mass_operation" model="ir.actions.act_window">
+        <field name="name">Mass Operations</field>
+        <field name="res_model">hr.payroll.demo.mass.operation</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

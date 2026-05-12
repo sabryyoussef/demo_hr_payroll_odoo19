@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ALLNETWORKS HR Payroll Accounting Demo</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(255, 255, 255, 0.08);
+      --panel-strong: rgba(255, 255, 255, 0.13);
+      --text: #edf5ff;
+      --muted: #a9bdd3;
+      --brand: #65d7ff;
+      --brand-2: #8cffc1;
+      --accent: #ffcb6b;
+      --danger: #ff7a90;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(101, 215, 255, 0.28), transparent 34rem),
+        radial-gradient(circle at top right, rgba(140, 255, 193, 0.16), transparent 34rem),
+        linear-gradient(135deg, #07111f 0%, #0c1d33 45%, #0b1426 100%);
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .shell {
+      width: min(1440px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 28px 0 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      color: #06111f;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      box-shadow: 0 10px 30px rgba(101, 215, 255, 0.35);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(16px);
+      font-size: 13px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 34px;
+      padding: 54px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.04)),
+        radial-gradient(circle at 75% 25%, rgba(255, 203, 107, 0.2), transparent 20rem);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
+      gap: 38px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      margin-bottom: 18px;
+      color: #06111f;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      border-radius: 999px;
+      padding: 8px 13px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 940px;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1.65;
+    }
+
+    .hero-card {
+      padding: 24px;
+      border-radius: var(--radius);
+      background: rgba(4, 13, 26, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .hero-card h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+
+    .hero-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 22px 0 0;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      color: var(--brand-2);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin: 44px 0 18px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: -0.04em;
+    }
+
+    .section-head p {
+      max-width: 720px;
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .filter-button {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .filter-button:hover,
+    .filter-button.active {
+      color: #07111f;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      border-color: transparent;
+    }
+
+    .search {
+      flex: 1 1 280px;
+      min-width: 220px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      padding: 12px 16px;
+      outline: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.22);
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(101, 215, 255, 0.45);
+      background: rgba(255, 255, 255, 0.11);
+    }
+
+    .thumb-wrap {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.26);
+    }
+
+    .thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top left;
+      display: block;
+      transition: transform 0.45s ease;
+    }
+
+    .card:hover .thumb {
+      transform: scale(1.04);
+    }
+
+    .badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: #06111f;
+      background: rgba(140, 255, 193, 0.94);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .category {
+      display: inline-flex;
+      margin-top: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .card p {
+      min-height: 72px;
+      margin: 14px 0 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 12px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: 0.2s ease;
+    }
+
+    .button.primary {
+      color: #07111f;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    }
+
+    .button.secondary {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    .journey {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .journey-step {
+      padding: 18px;
+      border-radius: 20px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .journey-step strong {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--text);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      padding: 22px;
+      background: rgba(2, 7, 14, 0.82);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal.open {
+      display: grid;
+      place-items: center;
+    }
+
+    .modal-panel {
+      width: min(1500px, 100%);
+      height: min(920px, 100%);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 26px;
+      background: #091321;
+      border: 1px solid rgba(255, 255, 255, 0.17);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px 14px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-title {
+      font-weight: 900;
+    }
+
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-close {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 14px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.12);
+      cursor: pointer;
+      font-size: 22px;
+    }
+
+    .modal-body {
+      flex: 1;
+      min-height: 0;
+      background: #050b14;
+    }
+
+    .modal-body img,
+    .modal-body iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .modal-body img {
+      object-fit: contain;
+      background: #050b14;
+    }
+
+    .note {
+      margin-top: 28px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid,
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .journey {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100% - 24px, 1440px);
+      }
+
+      .topbar,
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .hero {
+        padding: 30px;
+      }
+
+      .hero-grid,
+      .grid,
+      .stats,
+      .journey {
+        grid-template-columns: 1fr;
+      }
+
+      .buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="topbar">
+      <div class="brand">
+        <div class="brand-mark">HR</div>
+        <div>
+          <div>ALLNETWORKS Demo</div>
+          <small style="color: var(--muted)">Odoo 19 HR, Payroll and Accounting</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="pill">Database: allnetwork</span>
+        <span class="pill">Company: ALLNETWORKS Caribbean Holdings Ltd</span>
+        <a class="pill" href="http://127.0.0.1:8072/web" target="_blank" rel="noreferrer">Open Odoo</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Interactive Presentation</div>
+          <h1>From Employees to Payroll to Accounting in One Live Odoo Story</h1>
+          <p>
+            This web presentation turns the captured demo screenshots into an online walkthrough.
+            Preview every screen, explain the business scenario, then click <strong>See in Odoo</strong>
+            to open the live Odoo screen in a secure popup window.
+          </p>
+          <div class="stats">
+            <div class="stat"><strong>97</strong><span>active employees</span></div>
+            <div class="stat"><strong>278</strong><span>payslips</span></div>
+            <div class="stat"><strong>28</strong><span>captured screens</span></div>
+            <div class="stat"><strong>3+ hr</strong><span>presentation flow</span></div>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <h2>Presentation Promise</h2>
+          <ul>
+            <li>All screenshots were captured after visible search filters were removed.</li>
+            <li>Each card maps to a real Odoo screen in the demo database.</li>
+            <li>Use the screenshot for explanation, then open Odoo for live drill-down.</li>
+            <li>The flow covers HR, attendance, work entries, payroll, expenses, banking and accounting.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Presentation Journey</h2>
+          <p>Use this as the main story arc while moving through the screen cards below.</p>
+        </div>
+      </div>
+      <div class="journey">
+        <div class="journey-step"><strong>1. HR Foundation</strong>Employees, departments, jobs, contracts, training and certifications.</div>
+        <div class="journey-step"><strong>2. Workforce Activity</strong>Attendance, time off, accruals and work entries that feed payroll.</div>
+        <div class="journey-step"><strong>3. Payroll Execution</strong>Batches, payslips, salary rules, inputs and mass operations.</div>
+        <div class="journey-step"><strong>4. Finance Handoff</strong>Expenses, bank transfers, payment files and reconciliation.</div>
+        <div class="journey-step"><strong>5. Accounting Close</strong>Salaries journal, HR accounting entries, journal items and chart of accounts.</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Scenario Screens</h2>
+          <p>Filter by topic or search by screen name. Use <strong>Screenshot</strong> for a clean captured view and <strong>See in Odoo</strong> for the live Odoo popup window.</p>
+        </div>
+        <span class="pill" id="screenCount"></span>
+      </div>
+      <div class="filters" id="filters"></div>
+      <div class="grid" id="screenGrid"></div>
+    </section>
+
+    <div class="note">
+      Odoo blocks iframe embedding for security, so live screens open in a real browser popup window.
+      If the browser blocks popups, use the fallback <strong>Open Odoo Screen</strong> button.
+    </div>
+  </main>
+
+  <div class="modal" id="modal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div class="modal-title" id="modalTitle">Preview</div>
+        <div class="modal-actions">
+          <a class="button secondary" id="openFullTab" target="_blank" rel="noreferrer" style="display:none">Open Full Tab</a>
+          <button class="modal-close" type="button" id="modalClose" aria-label="Close">x</button>
+        </div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const ODOO_BASE = "http://127.0.0.1:8072";
+    const COMPANY_ID = 2;
+    const SCREENSHOT_BASE = "../scenario_screenshots/20260512_201721/";
+
+    const screens = [
+      {
+        number: "01",
+        title: "Operations Dashboard",
+        category: "Overview",
+        image: "01_operations_dashboard-operations-dashboard.png",
+        action: 541,
+        model: "hr.payroll.demo.dashboard",
+        view: "form",
+        description: "Executive control center for employee count, attendance alerts, payroll batches, draft payslips, bank transfers and monthly payroll totals."
+      },
+      {
+        number: "02",
+        title: "All Employees",
+        category: "HR Foundation",
+        image: "02_employees_all-all-employees.png",
+        action: 320,
+        model: "hr.employee",
+        view: "list",
+        description: "Full employee population across office, sales, support, operations, warehouse, IT, fixed-term and intern categories."
+      },
+      {
+        number: "03",
+        title: "Departments",
+        category: "HR Foundation",
+        image: "03_departments-departments.png",
+        action: 325,
+        model: "hr.department",
+        view: "list",
+        description: "Nine-department company structure used for managers, reporting, payroll cost analysis and approvals."
+      },
+      {
+        number: "04",
+        title: "Job Positions",
+        category: "HR Foundation",
+        image: "04_job_positions-job-positions.png",
+        action: 314,
+        model: "hr.job",
+        view: "list",
+        description: "Role catalog for executives, HR, finance, sales, support, field operations, warehouse logistics and IT."
+      },
+      {
+        number: "05",
+        title: "Contract Templates",
+        category: "Contracts",
+        image: "05_contract_templates-contract-templates.png",
+        action: 311,
+        model: "hr.version",
+        view: "list",
+        description: "Reusable contract templates for monthly salary, commission, shift, bi-weekly, remote, fixed-term, intern and seasonal cases."
+      },
+      {
+        number: "06",
+        title: "Training Sessions",
+        category: "Training",
+        image: "06_training_sessions-training-sessions.png",
+        action: 576,
+        model: "hr.payroll.demo.training",
+        view: "list",
+        description: "Training and certification sessions covering induction, safety, AML, payroll system training, customer service and IT security."
+      },
+      {
+        number: "07",
+        title: "Training Attendance Records",
+        category: "Training",
+        image: "07_training_attendance-training-attendance-records.png",
+        action: 578,
+        model: "hr.payroll.demo.training.attendance",
+        view: "list",
+        description: "Participant attendance, status, score and certification evidence for HR compliance and operational readiness."
+      },
+      {
+        number: "08",
+        title: "All Attendances",
+        category: "Attendance",
+        image: "08_attendances_all-all-attendances.png",
+        action: 355,
+        model: "hr.attendance",
+        view: "list",
+        description: "Attendance history for office, support shift, field, warehouse day shift, warehouse night shift and remote employees."
+      },
+      {
+        number: "09",
+        title: "All Time Off",
+        category: "Time Off",
+        image: "09_time_off_all-all-time-off.png",
+        action: 371,
+        model: "hr.leave",
+        view: "list",
+        description: "Approved, pending and refused leave cases across annual, sick, casual, unpaid and emergency leave types."
+      },
+      {
+        number: "10",
+        title: "Accrual Plans",
+        category: "Time Off",
+        image: "10_accrual_plans-accrual-plans.png",
+        action: 382,
+        model: "hr.leave.accrual.plan",
+        view: "list",
+        description: "Leave accrual policies for standard annual leave, sick leave, hourly worked-time, probation and interns."
+      },
+      {
+        number: "11",
+        title: "Work Entries",
+        category: "Payroll",
+        image: "11_work_entries-work-entries.png",
+        action: 407,
+        model: "hr.work.entry",
+        view: "list",
+        description: "The bridge between schedules, attendance, time off and payroll calculation before payslips are finalized."
+      },
+      {
+        number: "12",
+        title: "Payroll Batches",
+        category: "Payroll",
+        image: "12_payroll_batches-payroll-batches.png",
+        action: 489,
+        model: "hr.payslip.run",
+        view: "list",
+        description: "Monthly and bi-weekly payroll batches used to organize payslips by period and workforce type."
+      },
+      {
+        number: "13",
+        title: "All Payslips",
+        category: "Payroll",
+        image: "13_payslips_all-all-payslips.png",
+        action: 468,
+        model: "hr.payslip",
+        view: "list",
+        description: "Payslip population showing payroll outcomes, wage calculations, inputs, deductions and employee net pay."
+      },
+      {
+        number: "14",
+        title: "Salary Structures",
+        category: "Payroll Setup",
+        image: "14_salary_structures-salary-structures.png",
+        action: 471,
+        model: "hr.payroll.structure",
+        view: "list",
+        description: "Payroll structure configuration for regular employees and workers with different payroll schedules."
+      },
+      {
+        number: "15",
+        title: "Salary Rules",
+        category: "Payroll Setup",
+        image: "15_salary_rules-salary-rules.png",
+        action: 475,
+        model: "hr.salary.rule",
+        view: "list",
+        description: "Rules for base pay, allowances, overtime, bonus, commission, retroactive adjustment, loan recovery and absence penalty."
+      },
+      {
+        number: "16",
+        title: "Other Input Types",
+        category: "Payroll Setup",
+        image: "16_other_input_types-other-input-types.png",
+        action: 493,
+        model: "hr.payslip.input.type",
+        view: "list",
+        description: "Controlled sporadic inputs such as OVERTIME, BONUS, COMMISSION, LOAN, ABSENCE, RETRO, TRANSPORT and HOUSING."
+      },
+      {
+        number: "17",
+        title: "Mass Operations",
+        category: "Productivity",
+        image: "17_mass_operations-mass-operations.png",
+        action: 540,
+        model: "hr.payroll.demo.mass.operation",
+        view: "list",
+        description: "Batch operations for employee updates, attendance adjustment, leave approval, payslip generation, payslip approval and bank transfers."
+      },
+      {
+        number: "18",
+        title: "Employee Expenses",
+        category: "Expenses",
+        image: "18_employee_expenses-employee-expenses.png",
+        action: 564,
+        model: "hr.expense",
+        view: "list",
+        description: "Employee-paid, company-paid, submitted, approved and refused expense cases that complete the employee finance workflow."
+      },
+      {
+        number: "19",
+        title: "Bank Transfers",
+        category: "Banking",
+        image: "19_bank_transfers-bank-transfers.png",
+        action: 539,
+        model: "hr.payroll.demo.bank.transfer",
+        view: "list",
+        description: "Payroll-to-bank handoff showing payment lines, employee bank accounts, payment file preview, approval and reconciliation status."
+      },
+      {
+        number: "20",
+        title: "Demo Scenarios",
+        category: "Overview",
+        image: "20_demo_scenarios-demo-scenarios.png",
+        action: 542,
+        model: "hr.payroll.demo.scenario",
+        view: "list",
+        description: "Scenario catalog for quickly jumping into payroll, leave, attendance, accounting and reporting stories during the presentation."
+      },
+      {
+        number: "21",
+        title: "Department Payroll Summary",
+        category: "Reporting",
+        image: "21_department_payroll_summary-department-payroll-summary.png",
+        action: 543,
+        model: "hr.payroll.demo.department.summary",
+        view: "list",
+        description: "Management report for department payroll totals, overtime, attendance violations, leave load and transfer amounts."
+      },
+      {
+        number: "22",
+        title: "Payroll Reconciliation",
+        category: "Reconciliation",
+        image: "22_payroll_reconciliation-payroll-reconciliation.png",
+        action: 544,
+        model: "hr.payroll.demo.reconciliation",
+        view: "list",
+        description: "Finance review of matched salary transfers, differences, exceptions and reconciliation notes."
+      },
+      {
+        number: "23",
+        title: "Accounting Dashboard",
+        category: "Accounting",
+        image: "23_accounting_dashboard-accounting-dashboard.png",
+        action: 299,
+        model: "account.journal",
+        view: "kanban",
+        description: "Accounting control board with Salaries, HR Payroll Accounting and Salary Bank journals visible for the payroll close story."
+      },
+      {
+        number: "24",
+        title: "HR Payroll Accounting Entries",
+        category: "Accounting",
+        image: "24_hr_payroll_accounting_entries-hr-payroll-accounting-entries.png",
+        action: 781,
+        model: "account.move",
+        view: "list",
+        description: "Curated HR, payroll, expense, bank, accrual, loan, retroactive and reconciliation journal entries."
+      },
+      {
+        number: "25",
+        title: "All Journal Entries",
+        category: "Accounting",
+        image: "25_all_journal_entries-all-journal-entries.png",
+        action: 257,
+        model: "account.move",
+        view: "list",
+        description: "Native accounting journal entry list for posted and draft moves across the company."
+      },
+      {
+        number: "26",
+        title: "Journal Items",
+        category: "Accounting",
+        image: "26_journal_items-journal-items.png",
+        action: 256,
+        model: "account.move.line",
+        view: "list",
+        description: "Detailed debit and credit lines for payroll expenses, payroll payable, salary bank, leave liability and expense reimbursements."
+      },
+      {
+        number: "27",
+        title: "Journals",
+        category: "Accounting Setup",
+        image: "27_journals-journals.png",
+        action: 275,
+        model: "account.journal",
+        view: "list",
+        description: "Journal configuration for Salaries, HR Payroll Accounting, Salary Bank, sales, purchases and miscellaneous operations."
+      },
+      {
+        number: "28",
+        title: "Chart of Accounts",
+        category: "Accounting Setup",
+        image: "28_chart_of_accounts-chart-of-accounts.png",
+        action: 273,
+        model: "account.account",
+        view: "list",
+        description: "Payroll-related accounts for salary expense, overtime, bonus, employer cost, payroll payable, leave liability and bank clearing."
+      }
+    ];
+
+    const grid = document.getElementById("screenGrid");
+    const filters = document.getElementById("filters");
+    const screenCount = document.getElementById("screenCount");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+    const modalClose = document.getElementById("modalClose");
+    const openFullTab = document.getElementById("openFullTab");
+
+    let activeCategory = "All";
+    let searchText = "";
+
+    function odooUrl(screen) {
+      const params = new URLSearchParams();
+      params.set("cids", COMPANY_ID);
+      params.set("action", screen.action);
+      params.set("model", screen.model);
+      params.set("view_type", screen.view);
+      return `${ODOO_BASE}/web#${params.toString()}`;
+    }
+
+    function screenshotUrl(screen) {
+      return `${SCREENSHOT_BASE}${screen.image}`;
+    }
+
+    function categories() {
+      return ["All", ...Array.from(new Set(screens.map((screen) => screen.category)))];
+    }
+
+    function renderFilters() {
+      filters.innerHTML = "";
+      categories().forEach((category) => {
+        const button = document.createElement("button");
+        button.className = `filter-button${category === activeCategory ? " active" : ""}`;
+        button.textContent = category;
+        button.type = "button";
+        button.addEventListener("click", () => {
+          activeCategory = category;
+          render();
+        });
+        filters.appendChild(button);
+      });
+
+      const search = document.createElement("input");
+      search.className = "search";
+      search.placeholder = "Search screens, scenarios, accounting, payroll...";
+      search.value = searchText;
+      search.addEventListener("input", (event) => {
+        searchText = event.target.value.toLowerCase();
+        renderCards();
+      });
+      filters.appendChild(search);
+    }
+
+    function visibleScreens() {
+      return screens.filter((screen) => {
+        const matchesCategory = activeCategory === "All" || screen.category === activeCategory;
+        const haystack = `${screen.title} ${screen.category} ${screen.description} ${screen.model}`.toLowerCase();
+        return matchesCategory && haystack.includes(searchText);
+      });
+    }
+
+    function renderCards() {
+      const data = visibleScreens();
+      screenCount.textContent = `${data.length} of ${screens.length} screens`;
+      grid.innerHTML = "";
+      data.forEach((screen) => {
+        const article = document.createElement("article");
+        article.className = "card";
+        article.innerHTML = `
+          <div class="thumb-wrap">
+            <img class="thumb" src="${screenshotUrl(screen)}" alt="${screen.title} screenshot" loading="lazy" />
+            <span class="badge">${screen.number}</span>
+          </div>
+          <div class="card-body">
+            <h3>${screen.title}</h3>
+            <span class="category">${screen.category}</span>
+            <p>${screen.description}</p>
+            <div class="buttons">
+              <button class="button secondary" type="button" data-action="screenshot">Screenshot</button>
+              <button class="button primary" type="button" data-action="odoo">See in Odoo</button>
+            </div>
+          </div>
+        `;
+        article.querySelector('[data-action="screenshot"]').addEventListener("click", () => showScreenshot(screen));
+        article.querySelector('[data-action="odoo"]').addEventListener("click", () => showOdoo(screen));
+        grid.appendChild(article);
+      });
+    }
+
+    function render() {
+      renderFilters();
+      renderCards();
+    }
+
+    function showScreenshot(screen) {
+      modalTitle.textContent = `${screen.number}. ${screen.title} - Screenshot`;
+      modalBody.innerHTML = `<img src="${screenshotUrl(screen)}" alt="${screen.title} screenshot" />`;
+      openFullTab.style.display = "inline-flex";
+      openFullTab.href = screenshotUrl(screen);
+      openFullTab.textContent = "Open Image";
+      modal.classList.add("open");
+    }
+
+    function showOdoo(screen) {
+      const url = odooUrl(screen);
+      const popupName = `odoo_${screen.number}_${screen.title.replace(/[^a-z0-9]/gi, "_")}`;
+      const width = Math.min(1500, Math.max(1100, window.screen.availWidth - 120));
+      const height = Math.min(920, Math.max(760, window.screen.availHeight - 120));
+      const left = Math.max(20, Math.round((window.screen.availWidth - width) / 2));
+      const top = Math.max(20, Math.round((window.screen.availHeight - height) / 2));
+      const popup = window.open(
+        url,
+        popupName,
+        `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+      );
+
+      if (popup) {
+        popup.focus();
+        return;
+      }
+
+      modalTitle.textContent = `${screen.number}. ${screen.title} - Popup Blocked`;
+      modalBody.innerHTML = `
+        <div style="display:grid;place-items:center;height:100%;padding:32px;text-align:center;color:var(--muted);">
+          <div style="max-width:640px;">
+            <h2 style="margin:0 0 12px;color:var(--text);">Your browser blocked the Odoo popup.</h2>
+            <p style="line-height:1.7;margin:0 0 22px;">
+              Odoo cannot be embedded in this presentation because it protects itself from iframe loading.
+              Allow popups for this presentation, or open the live screen in a full tab.
+            </p>
+            <a class="button primary" href="${url}" target="_blank" rel="noreferrer">Open Odoo Screen</a>
+          </div>
+        </div>
+      `;
+      openFullTab.style.display = "inline-flex";
+      openFullTab.href = url;
+      openFullTab.textContent = "Open Full Tab";
+      modal.classList.add("open");
+    }
+
+    function closeModal() {
+      modal.classList.remove("open");
+      modalBody.innerHTML = "";
+      openFullTab.removeAttribute("href");
+    }
+
+    modalClose.addEventListener("click", closeModal);
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

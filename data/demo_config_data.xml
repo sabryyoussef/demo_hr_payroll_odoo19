@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dashboard_allnetworks_payroll" model="hr.payroll.demo.dashboard">
+        <field name="name">ALLNETWORKS Payroll Operations Dashboard</field>
+    </record>
+</odoo>

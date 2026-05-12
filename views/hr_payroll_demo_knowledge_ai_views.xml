@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payroll_demo_knowledge_ask_list" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.knowledge.ask.list</field>
+        <field name="model">hr.payroll.demo.knowledge.ask</field>
+        <field name="arch" type="xml">
+            <list decoration-success="answer_mode == 'ai'" decoration-warning="answer_mode == 'knowledge_search'" decoration-danger="answer_mode == 'failed'">
+                <field name="create_date"/>
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="answer_mode"/>
+                <field name="source_count"/>
+                <field name="ai_agent_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_knowledge_ask_form" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.knowledge.ask.form</field>
+        <field name="model">hr.payroll.demo.knowledge.ask</field>
+        <field name="arch" type="xml">
+            <form string="Ask ALLNETWORKS Knowledge AI">
+                <header>
+                    <button name="action_ask_ai" type="object" string="Ask AI" class="btn-primary"/>
+                    <button name="action_open_sources" type="object" string="Open Sources" invisible="not source_article_ids"/>
+                    <button name="action_open_knowledge_root" type="object" string="Open Knowledge Base"/>
+                    <button name="action_open_ai_agent" type="object" string="Open AI Agent"/>
+                    <field name="answer_mode" widget="statusbar" statusbar_visible="draft,ai,knowledge_search,failed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_sources" type="object" class="oe_stat_button" icon="fa-book" invisible="not source_article_ids">
+                            <field name="source_count" widget="statinfo" string="Sources"/>
+                        </button>
+                    </div>
+                    <group>
+                        <field name="company_id"/>
+                        <field name="ai_agent_id" readonly="1"/>
+                    </group>
+                    <group string="Employee Question">
+                        <field name="question" placeholder="Example: What happens if my salary payment is rejected by the bank?"/>
+                    </group>
+                    <group string="Answer">
+                        <field name="answer" widget="html" readonly="1" nolabel="1"/>
+                    </group>
+                    <group string="Source Articles">
+                        <field name="source_article_ids" widget="many2many_tags" readonly="1"/>
+                    </group>
+                    <group string="AI/Fallback Details" invisible="not error_message">
+                        <field name="error_message" readonly="1" nolabel="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_knowledge_ask_search" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.knowledge.ask.search</field>
+        <field name="model">hr.payroll.demo.knowledge.ask</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="question"/>
+                <field name="answer_mode"/>
+                <field name="source_article_ids"/>
+                <filter name="ai_answers" string="AI Answers" domain="[('answer_mode', '=', 'ai')]"/>
+                <filter name="fallback_answers" string="Knowledge Search Answers" domain="[('answer_mode', '=', 'knowledge_search')]"/>
+                <filter name="group_by_mode" string="By Answer Mode" context="{'group_by': 'answer_mode'}"/>
+                <filter name="group_by_company" string="By Company" context="{'group_by': 'company_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_demo_knowledge_ask" model="ir.actions.act_window">
+        <field name="name">Ask Knowledge AI</field>
+        <field name="res_model">hr.payroll.demo.knowledge.ask</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Ask a question from the ALLNETWORKS Knowledge base</p>
+            <p>Use questions such as payroll cutoff, rejected salary payment, leave balance, overtime, expenses, training, or company holidays.</p>
+        </field>
+    </record>
+</odoo>

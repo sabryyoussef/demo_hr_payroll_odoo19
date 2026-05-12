@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Training Session Views ─────────────────────────────────────────── -->
+
+    <record id="view_hr_payroll_demo_training_list" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.training.list</field>
+        <field name="model">hr.payroll.demo.training</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'completed'"
+                  decoration-info="state == 'ongoing'"
+                  decoration-muted="state == 'cancelled'"
+                  decoration-warning="state == 'planned'">
+                <field name="name"/>
+                <field name="training_type"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="duration_hours" string="Hours"/>
+                <field name="trainer_name"/>
+                <field name="location"/>
+                <field name="participant_count" string="Participants"/>
+                <field name="present_count" string="Present"/>
+                <field name="pass_rate" string="Pass %" digits="[5,1]"/>
+                <field name="certified_count" string="Certified"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'completed'"
+                       decoration-info="state == 'ongoing'"
+                       decoration-warning="state == 'planned'"
+                       decoration-danger="state == 'cancelled'"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_training_form" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.training.form</field>
+        <field name="model">hr.payroll.demo.training</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_mark_ongoing" string="Start Training"
+                            type="object" class="btn-primary"
+                            invisible="state != 'planned'"/>
+                    <button name="action_mark_completed" string="Mark Completed"
+                            type="object" class="btn-primary"
+                            invisible="state != 'ongoing'"/>
+                    <button name="action_mark_cancelled" string="Cancel"
+                            type="object"
+                            invisible="state in ('completed', 'cancelled')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="planned,ongoing,completed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Training Session Name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Session Details">
+                            <field name="training_type"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="duration_hours"/>
+                            <field name="location"/>
+                            <field name="max_participants"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Trainer">
+                            <field name="trainer_name"/>
+                            <field name="trainer_employee_id"/>
+                        </group>
+                    </group>
+                    <group string="Statistics" invisible="state == 'planned'">
+                        <group>
+                            <field name="participant_count"/>
+                            <field name="present_count"/>
+                            <field name="absent_count"/>
+                        </group>
+                        <group>
+                            <field name="pass_rate" string="Pass Rate (%)" digits="[5,1]"/>
+                            <field name="certified_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Attendance Register" name="attendance">
+                            <field name="attendance_ids">
+                                <list editable="bottom"
+                                      decoration-success="attendance_status == 'present' and passed"
+                                      decoration-warning="attendance_status == 'late'"
+                                      decoration-danger="attendance_status == 'absent'"
+                                      decoration-muted="attendance_status in ('excused','incomplete')">
+                                    <field name="employee_id"/>
+                                    <field name="department_id" readonly="1"/>
+                                    <field name="job_id" readonly="1"/>
+                                    <field name="attendance_status"/>
+                                    <field name="score"/>
+                                    <field name="passed"/>
+                                    <field name="certification_issued"/>
+                                    <field name="certificate_number" optional="show"/>
+                                    <field name="notes" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes and Objectives" name="notes">
+                            <field name="notes" placeholder="Training objectives, outcomes, follow-up actions…"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_training_search" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.training.search</field>
+        <field name="model">hr.payroll.demo.training</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="trainer_name"/>
+                <separator/>
+                <filter name="filter_planned" string="Planned" domain="[('state','=','planned')]"/>
+                <filter name="filter_ongoing" string="In Progress" domain="[('state','=','ongoing')]"/>
+                <filter name="filter_completed" string="Completed" domain="[('state','=','completed')]"/>
+                <separator/>
+                <filter name="filter_safety" string="Safety" domain="[('training_type','=','safety')]"/>
+                <filter name="filter_technical" string="Technical" domain="[('training_type','=','technical')]"/>
+                <filter name="filter_leadership" string="Leadership" domain="[('training_type','=','leadership')]"/>
+                <filter name="filter_certification" string="Certification Prep" domain="[('training_type','=','certification_prep')]"/>
+                <separator/>
+                <filter name="groupby_type" string="By Training Type" context="{'group_by': 'training_type'}"/>
+                <filter name="groupby_state" string="By Status" context="{'group_by': 'state'}"/>
+                <filter name="groupby_month" string="By Month" context="{'group_by': 'date_start:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_demo_training" model="ir.actions.act_window">
+        <field name="name">Training Sessions</field>
+        <field name="res_model">hr.payroll.demo.training</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_hr_payroll_demo_training_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No training sessions yet</p>
+            <p>Create a training session and add employees to the attendance register.</p>
+        </field>
+    </record>
+
+    <!-- ── Training Attendance Views ─────────────────────────────────────── -->
+
+    <record id="view_hr_payroll_demo_training_attendance_list" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.training.attendance.list</field>
+        <field name="model">hr.payroll.demo.training.attendance</field>
+        <field name="arch" type="xml">
+            <list decoration-success="certification_issued == True"
+                  decoration-warning="attendance_status == 'late'"
+                  decoration-danger="attendance_status == 'absent'"
+                  decoration-muted="attendance_status in ('excused','incomplete')">
+                <field name="training_id"/>
+                <field name="training_type" optional="show"/>
+                <field name="training_date_start" optional="show"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="job_id" optional="show"/>
+                <field name="attendance_status"/>
+                <field name="score"/>
+                <field name="passed"/>
+                <field name="certification_issued"/>
+                <field name="certificate_number" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_training_attendance_search" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.training.attendance.search</field>
+        <field name="model">hr.payroll.demo.training.attendance</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="training_id"/>
+                <field name="department_id"/>
+                <separator/>
+                <filter name="filter_present" string="Present" domain="[('attendance_status','=','present')]"/>
+                <filter name="filter_absent" string="Absent" domain="[('attendance_status','=','absent')]"/>
+                <filter name="filter_passed" string="Passed" domain="[('passed','=',True)]"/>
+                <filter name="filter_certified" string="Certificate Issued" domain="[('certification_issued','=',True)]"/>
+                <separator/>
+                <filter name="groupby_employee" string="By Employee" context="{'group_by': 'employee_id'}"/>
+                <filter name="groupby_department" string="By Department" context="{'group_by': 'department_id'}"/>
+                <filter name="groupby_training" string="By Training" context="{'group_by': 'training_id'}"/>
+                <filter name="groupby_month" string="By Month" context="{'group_by': 'training_date_start:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_demo_training_attendance" model="ir.actions.act_window">
+        <field name="name">Training Attendance Records</field>
+        <field name="res_model">hr.payroll.demo.training.attendance</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_hr_payroll_demo_training_attendance_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No attendance records yet</p>
+            <p>Attendance records are created through training sessions.</p>
+        </field>
+    </record>
+
+</odoo>
