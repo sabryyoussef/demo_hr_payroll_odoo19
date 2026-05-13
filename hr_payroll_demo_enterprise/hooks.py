@@ -240,6 +240,12 @@ def _create_contract_templates(env, company, departments, jobs, calendars, struc
     today = fields.Date.today()
     Version = env["hr.version"].with_company(company)
     hr_user = env.ref("base.user_admin")
+    work_entry_source_field = Version._fields.get("work_entry_source")
+    available_work_entry_sources = set()
+    if work_entry_source_field:
+        available_work_entry_sources = {
+            key for key, _label in work_entry_source_field._description_selection(env)
+        }
 
     def _contract_type(xmlid):
         return env.ref(xmlid, raise_if_not_found=False)
@@ -460,9 +466,15 @@ def _create_contract_templates(env, company, departments, jobs, calendars, struc
             "schedule_pay": template_def["schedule_pay"],
             "hourly_wage": template_def.get("hourly_wage", 0.0),
             "employee_type": template_def["employee_type"],
-            "work_entry_source": template_def.get("work_entry_source", "calendar"),
             "additional_note": template_def["note"],
         }
+        if work_entry_source_field:
+            requested_source = template_def.get("work_entry_source", "calendar")
+            values["work_entry_source"] = (
+                requested_source
+                if requested_source in available_work_entry_sources
+                else "calendar"
+            )
         template = Version.create(values)
         _register_xmlid(env, template, template_def["xmlid"])
 

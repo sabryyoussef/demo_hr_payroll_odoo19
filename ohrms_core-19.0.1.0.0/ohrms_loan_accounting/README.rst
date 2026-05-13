@@ -21,10 +21,7 @@ GNU GENERAL PUBLIC LICENSE, Version 3 (LGPLv3)
 
 Credits
 -------
-Developers: (v17) Anusha P P @cybrosys
-            (V16) Sreeshanth V S @cybrosys
-            (V14)  Naveen V @cybrosys
-            (V19) Risvana A R
+Developers: (v17) Anusha P P @cybrosys, (V16) Sreeshanth V S @cybrosys, (V14) Naveen V @cybrosys, (V19) Risvana A R
 
 Contacts
 --------

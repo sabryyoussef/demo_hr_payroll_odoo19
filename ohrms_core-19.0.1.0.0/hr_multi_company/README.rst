@@ -21,10 +21,7 @@ General Public License, Version 3 (LGPL v3).
 
 Credits
 =======
-* Developers: (V19) Aiswarya JP
-              (V18) Raneesha M K
-              (V17) Vishnuraj P
-              (V16) Athira Premanand
+* Developers: (V19) Aiswarya JP, (V18) Raneesha M K, (V17) Vishnuraj P, (V16) Athira Premanand
 Contact : odoo@cybrosys.com
 
 Contacts

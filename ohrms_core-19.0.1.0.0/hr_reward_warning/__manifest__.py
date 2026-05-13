@@ -24,7 +24,7 @@
     'name': 'Open HRMS Official Announcements',
     'version': '19.0.1.0.0',
     'category': 'Human Resources',
-    'summary': """Manages Official Announcements""",
+    'summary': 'Manages Official Announcements',
     'description': 'This module helps you to manage HR official announcements',
     'live_test_url': 'https://youtu.be/VPh1A9-jM5Q',
     'author': 'Cybrosys Techno solutions,Open HRMS',

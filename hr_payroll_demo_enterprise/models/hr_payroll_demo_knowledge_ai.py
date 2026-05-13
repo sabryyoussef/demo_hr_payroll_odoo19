@@ -27,7 +27,8 @@ class HrPayrollDemoKnowledgeAsk(models.Model):
         tracking=True,
         readonly=True,
     )
-    ai_agent_id = fields.Many2one("ai.agent", readonly=True)
+    # Stored as Char so the field exists regardless of whether ai_knowledge is installed.
+    ai_agent_id = fields.Char(string="AI Agent", readonly=True)
     source_article_ids = fields.Many2many("knowledge.article", string="Source Articles", readonly=True)
     source_count = fields.Integer(compute="_compute_source_count")
     error_message = fields.Text(readonly=True)
@@ -72,6 +73,8 @@ class HrPayrollDemoKnowledgeAsk(models.Model):
         }
 
     def action_open_ai_agent(self):
+        if "ai.agent" not in self.env.registry.models:
+            raise UserError(_("The AI Knowledge module is not installed on this server."))
         agent = self.env.ref("hr_payroll_demo_enterprise.ai_agent_allnetworks_knowledge", raise_if_not_found=False)
         if not agent:
             raise UserError(_("The ALLNETWORKS Knowledge AI agent was not found."))
@@ -91,7 +94,9 @@ class HrPayrollDemoKnowledgeAsk(models.Model):
 
         source_articles = self._find_relevant_articles(self.question)
         context_message = self._build_context_message(source_articles)
-        agent = self.env.ref("hr_payroll_demo_enterprise.ai_agent_allnetworks_knowledge", raise_if_not_found=False)
+        agent = None
+        if "ai.agent" in self.env.registry.models:
+            agent = self.env.ref("hr_payroll_demo_enterprise.ai_agent_allnetworks_knowledge", raise_if_not_found=False)
 
         if agent:
             try:
@@ -105,7 +110,7 @@ class HrPayrollDemoKnowledgeAsk(models.Model):
                     {
                         "answer": answer or self._build_fallback_answer(source_articles),
                         "answer_mode": "ai",
-                        "ai_agent_id": agent.id,
+                        "ai_agent_id": agent.display_name,
                         "source_article_ids": [(6, 0, source_articles.ids)],
                         "error_message": False,
                     }
@@ -119,7 +124,7 @@ class HrPayrollDemoKnowledgeAsk(models.Model):
             {
                 "answer": self._build_fallback_answer(source_articles),
                 "answer_mode": "knowledge_search" if source_articles else "failed",
-                "ai_agent_id": agent.id if agent else False,
+                "ai_agent_id": agent.display_name if agent else False,
                 "source_article_ids": [(6, 0, source_articles.ids)],
             }
         )

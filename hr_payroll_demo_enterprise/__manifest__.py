@@ -15,14 +15,12 @@
     "application": True,
     "depends": [
         "hr_payroll_account",
-        "hr_payroll_attendance",
-        "hr_holidays_attendance",
         "account",
         "hr_attendance",
         "hr_holidays",
         "hr_skills",
         "hr_expense",
-        "ai_knowledge",
+        "knowledge",
     ],
     "data": [
         "security/security.xml",
