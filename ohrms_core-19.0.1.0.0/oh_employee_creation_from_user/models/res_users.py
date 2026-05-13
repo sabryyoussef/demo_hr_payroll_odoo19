@@ -29,18 +29,31 @@ class ResUsers(models.Model):
 
     employee_id = fields.Many2one('hr.employee',
                                   string='Related Employee',
-                                  ondelete='restrict', auto_join=True,
+                                  ondelete='restrict',
                                   help='Related employee based on the'
                                        ' data of the user')
 
     @api.model_create_multi
-    def create(self, vals):
+    def create(self, vals_list):
         """Overrides the default 'create' method to create an employee record
         when a new user is created."""
-        result = super(ResUsers, self).create(vals)
-        result['employee_id'] = self.env['hr.employee'].sudo().create({
-            'name': result['name'],
-            'user_id': result['id'],
-            'private_street': result['partner_id'].id
-        })
-        return result
+        users = super(ResUsers, self).create(vals_list)
+        if self.env.context.get('install_mode') or self.env.context.get('module'):
+            return users
+
+        Employee = self.env['hr.employee'].sudo()
+        for user in users:
+            existing_employee = Employee.search([
+                ('user_id', '=', user.id),
+                ('company_id', '=', user.company_id.id),
+            ], limit=1)
+            if existing_employee:
+                user.employee_id = existing_employee
+                continue
+            user.employee_id = Employee.create({
+                'name': user.name,
+                'user_id': user.id,
+                'company_id': user.company_id.id,
+                'private_street': user.partner_id.id,
+            })
+        return users

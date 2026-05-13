@@ -24,19 +24,16 @@
     'name': 'Open HRMS Core',
     'version': '19.0.1.0.0',
     'category': 'Generic Modules/Human Resources',
-    'summary': """Open HRMS Odoo19, HRMS odoo19, Odoo HR, HR Dashboard, 
-     Odoo19 Payroll, HR Management, Odoo Branch, Odoo Loan, Salary Advance, 
-     Odoo19,Payroll,Dashboard,Accounting,HR Kit,HR,Odoo Apps, Odoo19""",
-    'description': """Openhrms, Main module of Open HRMS,Payroll, Payroll 
-     Accounting, Expense, Dashboard,Employees, Employee Document, Resignation, 
-     Salary Advance, Loan Management, Gratuity, Service Request, Gosi, 
-     WPS Report, Reminder, Multi Company, Shift Management, Employee History, 
-     Branch Transfer, Employee Appraisal,Biometric Device, Announcements, 
-     Insurance Management, Vacation Management,Employee Appreciations, 
-     Asset Custody, Employee Checklist, Entry and Exit Checklist, Disciplinary 
-     Actions, openhrms, Open HRMS, hrms, Attrition Rate, Document Expiry, 
-     Visa Expiry, Law Suit Management, Employee, Employee Training, payroll, 
-     odoo19 payroll""",
+    'summary': (
+        'Open HRMS Odoo 19 core bundle for HR dashboard, employees, '
+        'attendance, time off, expenses, recruitment, and reminders'
+    ),
+    'description': (
+        'Open HRMS main module for Odoo 19 with dashboard, employees, documents, '
+        'resignation, reminders, recruitment, attendance, time off, timesheets, '
+        'expenses, and HR configuration helpers. Payroll-specific community '
+        'addons are intentionally excluded for Enterprise payroll compatibility.'
+    ),
     'author': 'Cybrosys Techno solutions',
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
@@ -44,21 +41,16 @@
     'website': "https://www.openhrms.com",
     'depends': [
         'hr',
-        'hr_payroll_account_community',
         'hr_gamification',
         'hr_employee_updation',
         'hr_recruitment',
         'hr_attendance',
         'hr_holidays',
-        'hr_payroll_community',
         'hr_expense',
         'hr_leave_request_aliasing',
         'hr_timesheet',
         'oh_employee_creation_from_user',
         'oh_employee_documents_expiry',
-        'hr_multi_company',
-        'ohrms_loan_accounting',
-        'ohrms_salary_advance',
         'hr_reward_warning',
         'hrms_dashboard',
         'hr_reminder'

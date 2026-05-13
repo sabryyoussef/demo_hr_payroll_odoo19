@@ -85,7 +85,10 @@ class HrEmployee(models.Model):
         """To fetch the details of employee"""
         uid = request.session.uid
         employee = self.env['hr.employee'].sudo().search_read(
-            [('user_id', '=', uid)], limit=1)
+            [('user_id', '=', uid), ('company_id', '=', self.env.company.id)], limit=1)
+        if not employee:
+            employee = self.env['hr.employee'].sudo().search_read(
+                [('user_id', '=', uid)], limit=1)
         attendance = self.env['hr.attendance'].sudo().search_read(
             [('employee_id', '=', employee[0]['id'])],
             fields=['id', 'check_in', 'check_out', 'worked_hours'])

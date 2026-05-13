@@ -24,9 +24,11 @@
     'name': 'Odoo19 Payroll Accounting',
     'version': '19.0.1.0.1',
     'category': 'Human Resources',
-    'summary': """Helps you to manage payroll and 
-     accounting""",
-    'description': """Comprehensive solution for managing payroll and accounting processes in Odoo 19.""",
+    'summary': 'Disabled Open HRMS community payroll accounting module',
+    'description': (
+        'This community payroll accounting addon is intentionally disabled in '
+        'this Odoo 19 Enterprise demo repository.'
+    ),
     'test': ['../account/test/account_minimal_test.xml'],
     'author': 'Cybrosys Techno Solutions',
     'company': 'Cybrosys Techno Solutions',
@@ -39,7 +41,7 @@
              'views/hr_salary_rule_views.xml', ],
     'images': ['static/description/banner.jpg'],
     'license': 'LGPL-3',
-    'installable': True,
+    'installable': False,
     'auto_install': False,
     'application': False,
 }

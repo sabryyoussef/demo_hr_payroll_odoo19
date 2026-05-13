@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="HrDashboardManagerScopeBlock">
+        <t t-if="this.state.manager_scope">
+            <section class="o_hrms_manager_scope">
+                <div class="o_hrms_manager_scope_header">
+                    <div>
+                        <div class="o_hrms_manager_scope_eyebrow">Managerial HR View</div>
+                        <h2>Company Workforce Dashboard</h2>
+                        <p>
+                            Showing <t t-esc="this.state.manager_scope.department_name"/> for
+                            <t t-esc="this.state.manager_scope.company_name"/>.
+                        </p>
+                    </div>
+                    <select class="form-select o_hrms_manager_scope_filter"
+                            t-on-change="onManagerDepartmentChange">
+                        <option value="">All Departments</option>
+                        <t t-foreach="this.state.manager_scope.departments || []"
+                           t-as="department"
+                           t-key="department.id">
+                            <option t-att-value="department.id"
+                                    t-att-selected="department.id === this.state.manager_scope.department_id">
+                                <t t-esc="department.name"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+                <div class="o_hrms_manager_scope_grid">
+                    <button class="o_hrms_manager_scope_card o_hrms_manager_scope_people"
+                            t-on-click="openManagerEmployees">
+                        <span>Employees</span>
+                        <strong><t t-esc="this.state.manager_scope.employee_count"/></strong>
+                        <small>Active workforce</small>
+                    </button>
+                    <button class="o_hrms_manager_scope_card o_hrms_manager_scope_people"
+                            t-on-click="openManagerContracts">
+                        <span>Contracts</span>
+                        <strong><t t-esc="this.state.manager_scope.contract_count"/></strong>
+                        <small>Active company contracts</small>
+                    </button>
+                    <button class="o_hrms_manager_scope_card o_hrms_manager_scope_payroll"
+                            t-on-click="openManagerPayslips">
+                        <span>Payslips</span>
+                        <strong><t t-esc="this.state.manager_scope.payslip_count"/></strong>
+                        <small>Payroll records</small>
+                    </button>
+                    <button class="o_hrms_manager_scope_card o_hrms_manager_scope_attendance"
+                            t-on-click="openManagerAttendances">
+                        <span>Attendances</span>
+                        <strong><t t-esc="this.state.manager_scope.attendance_count"/></strong>
+                        <small>Attendance entries</small>
+                    </button>
+                    <button class="o_hrms_manager_scope_card o_hrms_manager_scope_leave"
+                            t-on-click="openManagerLeaves">
+                        <span>Time Off</span>
+                        <strong><t t-esc="this.state.manager_scope.leave_count"/></strong>
+                        <small>
+                            <t t-esc="this.state.manager_scope.leave_to_approve_count"/> waiting approval
+                        </small>
+                    </button>
+                    <button class="o_hrms_manager_scope_card o_hrms_manager_scope_finance"
+                            t-on-click="openManagerExpenses">
+                        <span>Expenses</span>
+                        <strong><t t-esc="this.state.manager_scope.expense_count"/></strong>
+                        <small>
+                            <t t-esc="this.state.manager_scope.expense_to_approve_count"/> waiting approval
+                        </small>
+                    </button>
+                </div>
+            </section>
+        </t>
+    </t>
+
+    <t t-name="HrDashboardManagerScope"
+       t-inherit="HrDashboardMain"
+       t-inherit-mode="extension">
+        <xpath expr="//t[@t-if='this.state.is_manager == true']" position="replace">
+            <t t-if="this.state.is_manager == true">
+                <t t-call="HrDashboardManagerScopeBlock"/>
+                <t t-call="ManagerDashboard"/>
+            </t>
+        </xpath>
+    </t>
+</templates>
