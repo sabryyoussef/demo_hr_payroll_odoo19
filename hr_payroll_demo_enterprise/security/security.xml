@@ -12,12 +12,7 @@
         <field name="privilege_id" ref="hr_payroll.res_groups_privilege_payroll"/>
         <field name="sequence">40</field>
         <field name="implied_ids" eval="[(4, ref('group_hr_payroll_demo_user')), (4, ref('hr_payroll.group_hr_payroll_manager'))]"/>
-    </record>
-
-    <!-- Assign admin to the demo manager group via res.users to avoid
-         the 'Invalid field users in res.groups' error in Odoo 19. -->
-    <record id="base.user_admin" model="res.users">
-        <field name="groups_id" eval="[(4, ref('group_hr_payroll_demo_manager'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
     </record>
 
     <record id="rule_hr_payroll_demo_bank_transfer_company" model="ir.rule">
