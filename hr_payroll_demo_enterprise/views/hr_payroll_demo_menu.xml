@@ -11,6 +11,12 @@
               action="action_hr_payroll_demo_dashboard"
               sequence="1"/>
 
+    <menuitem id="menu_hr_payroll_demo_workflow_dashboard"
+              name="Workflow Story Dashboard"
+              parent="menu_hr_payroll_demo_root"
+              action="action_hr_payroll_demo_workflow_dashboard"
+              sequence="2"/>
+
     <menuitem id="menu_hr_payroll_demo_operations"
               name="Operations"
               parent="menu_hr_payroll_demo_root"
@@ -63,6 +69,12 @@
               parent="menu_hr_payroll_demo_operations"
               action="action_hr_payroll_demo_knowledge_ask"
               sequence="40"/>
+
+    <menuitem id="menu_hr_payroll_demo_workflow_steps"
+              name="Demo Workflow Steps"
+              parent="menu_hr_payroll_demo_operations"
+              action="action_hr_payroll_demo_workflow_step"
+              sequence="45"/>
 
     <menuitem id="menu_hr_payroll_demo_reports"
               name="Reports"
