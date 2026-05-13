@@ -38,7 +38,6 @@
     ],
     "demo": [
         "demo/demo_marker.xml",
-        "demo/hr_holidays_compat.xml",
     ],
     "assets": {
         "web.assets_backend": [
