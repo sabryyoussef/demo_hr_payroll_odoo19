@@ -64,7 +64,7 @@
         <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_training</field>
         <field name="target_model">hr.payroll.demo.training</field>
         <field name="button_label">Open Training</field>
-        <field name="real_menu_path">Payroll Demo Enterprise &gt; Operations &gt; Training &amp; Certifications</field>
+        <field name="real_menu_path">Employees &gt; Configuration &gt; Skills / Certifications</field>
     </record>
 
     <record id="workflow_step_05_attendance" model="hr.payroll.demo.workflow.step">
@@ -167,7 +167,7 @@
         <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_bank_transfer</field>
         <field name="target_model">hr.payroll.demo.bank.transfer</field>
         <field name="button_label">Open Bank Transfers</field>
-        <field name="real_menu_path">Payroll Demo Enterprise &gt; Operations &gt; Bank Transfers</field>
+        <field name="real_menu_path">Payroll &gt; Reporting &gt; Payslips, then Accounting &gt; Payments for salary payment follow-up</field>
     </record>
 
     <record id="workflow_step_12_accounting" model="hr.payroll.demo.workflow.step">
@@ -197,7 +197,7 @@
         <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_reconciliation</field>
         <field name="target_model">hr.payroll.demo.reconciliation</field>
         <field name="button_label">Open Reconciliation</field>
-        <field name="real_menu_path">Payroll Demo Enterprise &gt; Reports &gt; Payroll Reconciliation</field>
+        <field name="real_menu_path">Payroll &gt; Reporting &gt; Payroll, then Accounting &gt; Accounting &gt; Journal Items</field>
     </record>
 
     <record id="workflow_step_14_knowledge" model="hr.payroll.demo.workflow.step">
@@ -227,6 +227,6 @@
         <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_knowledge_ask</field>
         <field name="target_model">hr.payroll.demo.knowledge.ask</field>
         <field name="button_label">Ask AI</field>
-        <field name="real_menu_path">Payroll Demo Enterprise &gt; Operations &gt; Ask Knowledge AI</field>
+        <field name="real_menu_path">Knowledge &gt; Articles, then AI / Knowledge search from the Knowledge app</field>
     </record>
 </odoo>
