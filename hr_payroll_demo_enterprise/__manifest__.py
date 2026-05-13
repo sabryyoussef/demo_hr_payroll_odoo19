@@ -15,8 +15,6 @@
     "application": True,
     "depends": [
         "hr_payroll_account",
-        "hr_payroll_attendance",
-        "hr_holidays_attendance",
         "account",
         "hr_attendance",
         "hr_holidays",

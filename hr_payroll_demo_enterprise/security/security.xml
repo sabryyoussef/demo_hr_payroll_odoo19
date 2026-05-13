@@ -12,6 +12,7 @@
         <field name="privilege_id" ref="hr_payroll.res_groups_privilege_payroll"/>
         <field name="sequence">40</field>
         <field name="implied_ids" eval="[(4, ref('group_hr_payroll_demo_user')), (4, ref('hr_payroll.group_hr_payroll_manager'))]"/>
+        <field name="users" eval="[(4, ref('base.user_admin'))]"/>
     </record>
 
     <record id="rule_hr_payroll_demo_bank_transfer_company" model="ir.rule">

@@ -25,10 +25,10 @@
     'version': '19.0.1.0.0',
     'category': 'Human Resources',
     'summary': 'Advance Salary In Open HRMS.',
-    'description': """THis module is a component of Open HRMS suit. It module 
-     helps the user to manage salary advance requests from employees. You can 
-     configure advance salary rules, set advance salary limit, minimum number 
-     of days, and provide advance salary to employees.""",
+    'description': (
+        'This module helps users manage salary advance requests from employees, '
+        'including salary advance rules, limits, minimum days, and advance payments.'
+    ),
     'live_test_url': 'https://youtu.be/5OfoXRZ3AAY',
     'author': "Cybrosys Techno Solutions",
     'company': 'Cybrosys Techno Solutions',

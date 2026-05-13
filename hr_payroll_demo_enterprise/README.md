@@ -340,8 +340,6 @@ The module post-init hook seeds the complete dataset automatically.
 This module uses the real Odoo 19 Enterprise stack:
 
 - `hr_payroll_account`
-- `hr_payroll_attendance`
-- `hr_holidays_attendance`
 - `account`
 - `hr_attendance`
 - `hr_holidays`
