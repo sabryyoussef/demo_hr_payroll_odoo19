@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Force-demo compatibility records.
+
+    Context:
+    In Odoo 19, hr_holidays ships no demo data that pre-creates:
+      hr_holidays.hr_holidays_sl       (hr.leave  — Doctor Appointment)
+      hr_holidays.hr_holidays_cl_qdp   (hr.leave  — Sick day, Marc Demo)
+      hr_holidays.hr_holidays_sl_qdp   (hr.leave  — Sick day 2, Marc Demo)
+      hr_holidays.hr_holidays_cl_mit_2 (hr.leave  — Trip)
+
+    Enterprise module hr_payroll_holidays/data/demo.xml (and its Odoo.sh
+    variants) try to use those XML IDs in force-demo. If hr_holidays demo
+    cannot create them (because standard Odoo demo employees are absent),
+    subsequent ref() calls raise:
+      "Could not eval([ref('hr_holidays.hr_holidays_sl'), ...]) for None"
+
+    This file registers minimal hr.leave.type records under those XML IDs
+    so the ref() calls resolve without error. hr.leave.type records are used
+    because the Odoo.sh enterprise eval expression evaluates them as a list
+    of leave type IDs (Many2many context). Using noupdate="1" ensures we
+    never overwrite records that hr_holidays demo created successfully first.
+
+    NOTE: Cross-module records (id containing '.') are only safe in demo
+    files or init-mode loads; they raise "Cannot update missing record"
+    when loaded in update mode (regular upgrades). This is why they live
+    in the demo section, not the data section.
+-->
+<odoo>
+    <data noupdate="1">
+
+        <record id="hr_holidays.hr_holidays_sl" model="hr.leave.type">
+            <field name="name">Sick Leave (Demo Fallback)</field>
+            <field name="requires_allocation">no</field>
+            <field name="leave_validation_type">hr</field>
+        </record>
+
+        <record id="hr_holidays.hr_holidays_cl_qdp" model="hr.leave.type">
+            <field name="name">Casual Leave (Demo Fallback)</field>
+            <field name="requires_allocation">no</field>
+            <field name="leave_validation_type">manager</field>
+        </record>
+
+        <record id="hr_holidays.hr_holidays_sl_qdp" model="hr.leave.type">
+            <field name="name">Paid Leave (Demo Fallback)</field>
+            <field name="requires_allocation">no</field>
+            <field name="leave_validation_type">manager</field>
+        </record>
+
+        <record id="hr_holidays.hr_holidays_cl_mit_2" model="hr.leave.type">
+            <field name="name">Compensatory Leave (Demo Fallback)</field>
+            <field name="requires_allocation">no</field>
+            <field name="leave_validation_type">manager</field>
+        </record>
+
+    </data>
+</odoo>
