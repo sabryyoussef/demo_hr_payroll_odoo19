@@ -20,7 +20,7 @@
         "hr_holidays",
         "hr_skills",
         "hr_expense",
-        "ai_knowledge",
+        "knowledge",
     ],
     "data": [
         "security/security.xml",
