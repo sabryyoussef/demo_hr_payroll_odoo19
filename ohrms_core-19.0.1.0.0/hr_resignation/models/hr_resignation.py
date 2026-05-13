@@ -199,6 +199,36 @@ class HrResignation(models.Model):
             resignation.employee_id.resigned = False
             resignation.employee_id.fired = False
 
+    @api.model
+    def update_employee_status(self):
+        """Scheduled action: deactivate employees whose approved resignation
+        date has been reached today or earlier."""
+        today = fields.Date.today()
+        due_resignations = self.search([
+            ('state', '=', 'approved'),
+            ('expected_revealing_date', '<=', today),
+        ])
+        for resignation in due_resignations:
+            employee = resignation.employee_id
+            if not employee or not employee.active:
+                continue
+            employee.active = False
+            employee.resign_date = resignation.expected_revealing_date
+            if resignation.resignation_type == 'resigned':
+                employee.resigned = True
+                departure_reason = self.env['hr.departure.reason'].search(
+                    [('name', '=', 'Resigned')], limit=1)
+            else:
+                employee.fired = True
+                departure_reason = self.env['hr.departure.reason'].search(
+                    [('name', '=', 'Fired')], limit=1)
+            if departure_reason:
+                employee.departure_reason_id = departure_reason
+            employee.departure_date = resignation.approved_revealing_date
+            if employee.user_id:
+                employee.user_id.active = False
+                employee.user_id = False
+
     def action_approve_resignation(self):
         """ Method triggered by the 'Approve' button to
                approve the resignation."""
