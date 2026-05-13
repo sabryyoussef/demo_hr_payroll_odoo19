@@ -25,6 +25,7 @@
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
+        "data/hr_leave_type_compat.xml",
         "data/demo_config_data.xml",
         "views/hr_payroll_demo_bank_transfer_views.xml",
         "views/hr_payroll_demo_mass_operation_views.xml",
@@ -32,10 +33,17 @@
         "views/hr_payroll_demo_report_views.xml",
         "views/hr_payroll_demo_training_views.xml",
         "views/hr_payroll_demo_knowledge_ai_views.xml",
+        "views/hr_payroll_demo_workflow_views.xml",
         "views/hr_payroll_demo_menu.xml",
     ],
     "demo": [
         "demo/demo_marker.xml",
+        "demo/hr_holidays_compat.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "hr_payroll_demo_enterprise/static/src/css/workflow_dashboard.css",
+        ],
+    },
     "post_init_hook": "post_init_hook",
 }

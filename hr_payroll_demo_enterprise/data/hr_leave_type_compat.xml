@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Stable demo leave types for hr_payroll_demo_enterprise.
+
+    These three hr.leave.type records are owned by this module (stable XML IDs:
+    demo_sick_leave, demo_casual_leave, demo_paid_leave). They are loaded in the
+    data section so they exist as soon as the module is installed or upgraded,
+    before any demo data or post_init_hook runs.
+
+    hooks.py also creates leave types at post_init time; these data-section
+    records give clean, referenceable XML IDs for any XML-driven configuration
+    or for use in eval="[(6, 0, [ref('hr_payroll_demo_enterprise.demo_sick_leave'), ...])]".
+
+    noupdate="1" — never overwrite records that already exist (e.g. after the
+    initial install). This prevents resetting user customisations.
+-->
+<odoo>
+    <data noupdate="1">
+
+        <record id="demo_sick_leave" model="hr.leave.type">
+            <field name="name">Demo Sick Leave</field>
+            <field name="requires_allocation">no</field>
+            <field name="leave_validation_type">hr</field>
+        </record>
+
+        <record id="demo_casual_leave" model="hr.leave.type">
+            <field name="name">Demo Casual Leave</field>
+            <field name="requires_allocation">no</field>
+            <field name="leave_validation_type">manager</field>
+        </record>
+
+        <record id="demo_paid_leave" model="hr.leave.type">
+            <field name="name">Demo Paid Leave</field>
+            <field name="requires_allocation">no</field>
+            <field name="leave_validation_type">manager</field>
+        </record>
+
+    </data>
+</odoo>
