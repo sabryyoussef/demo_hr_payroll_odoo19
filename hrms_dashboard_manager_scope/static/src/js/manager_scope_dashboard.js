@@ -48,6 +48,21 @@ patch(HrDashboard.prototype, {
         await this.loadManagerScope(departmentId);
     },
 
+    render_graphs() {
+        if (!this.state.login_employee) {
+            return;
+        }
+        if (this.state.is_manager) {
+            this.render_department_employee();
+            this.render_leave_graph();
+            this.update_join_resign_trends();
+            this.update_monthly_attrition();
+            return;
+        }
+        this.update_leave_trend();
+        this.render_employee_skill();
+    },
+
     managerDepartmentDomain() {
         const scope = this.state.manager_scope || {};
         return scope.department_id ? [["department_id", "=", scope.department_id]] : [];
