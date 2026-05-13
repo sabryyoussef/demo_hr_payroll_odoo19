@@ -38,6 +38,10 @@ class HrPayslipLine(models.Model):
     salary_rule_id = fields.Many2one('hr.salary.rule', string='Rule',
                                      required=True,
                                      help="Choose Salary Rule for line")
+    register_id = fields.Many2one('hr.contribution.register',
+                                  string='Contribution Register',
+                                  help="Contribution register copied from "
+                                       "the salary rule for reporting.")
     employee_id = fields.Many2one('hr.employee', string='Employee',
                                   required=True,
                                   help="Choose Employee for line")

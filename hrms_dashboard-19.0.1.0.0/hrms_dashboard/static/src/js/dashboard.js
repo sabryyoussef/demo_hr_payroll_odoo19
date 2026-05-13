@@ -571,6 +571,16 @@ export class HrDashboard extends Component{
    async hr_contract() {
         console.log("this:", this)
         if (this.isHrManager) {
+            const allowedCompanies = session.user_companies?.allowed_companies || {};
+            const allowedCompanyIds = Object.keys(allowedCompanies).map((companyId) => parseInt(companyId));
+            const contextCompanyIds = user.context?.allowed_company_ids || session.user_context?.allowed_company_ids || [];
+            const companyIds = allowedCompanyIds.length ? allowedCompanyIds : contextCompanyIds;
+            const context = {
+                'search_default_employee_id': this.state.login_employee.id,
+            };
+            if (companyIds.length) {
+                context.allowed_company_ids = companyIds;
+            }
 
             // Call the Python function to get the view ID
             const view_id = await this.orm.call(
@@ -588,9 +598,7 @@ export class HrDashboard extends Component{
                     [false, 'graph'],
                     [false, 'pivot'],
                 ],
-                context: {
-                    'search_default_employee_id': this.state.login_employee.id,
-                },
+                context: context,
                 target: 'current'
             });
         }

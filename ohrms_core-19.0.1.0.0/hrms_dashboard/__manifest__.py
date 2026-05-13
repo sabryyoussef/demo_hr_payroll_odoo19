@@ -31,7 +31,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': "https://www.openhrms.com",
-    'depends': ['hr', 'hr_holidays', 'hr_timesheet', 'hr_payroll_community',
+    'depends': ['hr', 'hr_holidays', 'hr_timesheet', 'hr_payroll',
                 'hr_attendance', 'hr_timesheet_attendance',
                 'hr_recruitment', 'hr_resignation', 'event',
                 'hr_reward_warning', 'hr_expense'],
