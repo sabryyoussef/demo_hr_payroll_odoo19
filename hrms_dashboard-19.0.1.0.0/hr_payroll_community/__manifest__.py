@@ -24,15 +24,12 @@
     'name': 'Odoo 19 HR Payroll',
     'version': '19.0.1.0.1',
     'category': 'Human Resources',
-    'summary': """Odoo 19 HR Payroll, Odoo19 Payroll, Payroll, Odoo Payroll,
-    Payroll V19, Odoo19, Payroll Management, Odoo19 Payslip""",
-    'description': """The system automates payroll management by streamlining
-     key processes such as calculating employee salaries, deductions, and 
-     benefits based on predefined rules and regulations. It also facilitates
-     the automatic generation of detailed payslips, ensuring accuracy in 
-     payment breakdowns for each employee. This reduces manual effort, 
-     minimizes errors, and ensures compliance with tax and labor laws, while
-     providing employees with timely and accurate payment information""",
+    'summary': 'Disabled Open HRMS community payroll compatibility module',
+    'description': (
+        'This community payroll addon is intentionally disabled in this Odoo 19 '
+        'Enterprise demo repository because Enterprise hr_payroll provides the '
+        'payroll models and data.'
+    ),
     'author': 'Cybrosys Techno Solutions',
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
@@ -65,7 +62,7 @@
     'demo': ['data/hr_payroll_community_demo.xml'],
     'images': ['static/description/banner.jpg'],
     'license': 'LGPL-3',
-    'installable': True,
+    'installable': False,
     'auto_install': False,
-    'application': True,
+    'application': False,
 }
