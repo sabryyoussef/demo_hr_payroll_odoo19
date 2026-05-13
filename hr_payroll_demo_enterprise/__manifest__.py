@@ -3,13 +3,12 @@
     "version": "19.0.1.0.0",
     "category": "Human Resources/Payroll",
     "summary": "Production-grade HR, attendance, payroll, banking and mass operations demo",
-    "description": """
-Realistic medium-size company demo for Odoo 19 HR and Payroll operations.
-
-Includes a full demo company, departments, employees, contracts, attendance,
-leaves, payroll batches, banking workflow, reconciliation examples, dashboards,
-mass operation shortcuts, reports, tests, Playwright demo automation and docs.
-    """,
+    "description": (
+        "Realistic medium-size company demo for Odoo 19 HR and Payroll operations. "
+        "Includes a full demo company, departments, employees, contracts, attendance, "
+        "leaves, payroll batches, banking workflow, reconciliation examples, dashboards, "
+        "mass operation shortcuts, reports, tests, Playwright demo automation and docs."
+    ),
     "author": "AllNetworks Demo Team",
     "license": "LGPL-3",
     "installable": True,

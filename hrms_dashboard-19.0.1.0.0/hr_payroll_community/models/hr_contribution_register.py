@@ -20,7 +20,7 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class HrContributionRegister(models.Model):
@@ -34,10 +34,18 @@ class HrContributionRegister(models.Model):
                                  help="Choose Partner for Register")
     name = fields.Char(required=True, string="Name",
                        help="Contribution Register Name")
-    register_line_ids = fields.One2many('hr.payslip.line',
-                                        'register_id',
-                                        string='Register Line',
-                                        readonly=True,
-                                        help="Choose Payslip line")
+    register_line_ids = fields.Many2many('hr.payslip.line',
+                                         compute='_compute_register_line_ids',
+                                         string='Register Line',
+                                         readonly=True,
+                                         help="Choose Payslip line")
     note = fields.Text(string='Description',
                        help="Set Description for Register")
+
+    @api.depends('name')
+    def _compute_register_line_ids(self):
+        payslip_line = self.env['hr.payslip.line'].sudo()
+        for register in self:
+            register.register_line_ids = payslip_line.search([
+                ('salary_rule_id.register_id', '=', register.id),
+            ])
