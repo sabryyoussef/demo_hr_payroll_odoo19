@@ -99,6 +99,9 @@ def post_init_hook(env):
     dashboard = env.ref(f"{MODULE}.dashboard_allnetworks_payroll", raise_if_not_found=False)
     if dashboard:
         dashboard.company_id = company
+    workflow_dashboard = env.ref(f"{MODULE}.workflow_dashboard_allnetworks", raise_if_not_found=False)
+    if workflow_dashboard:
+        workflow_dashboard.company_id = company
 
 
 def _xmlid_record(env, name):
