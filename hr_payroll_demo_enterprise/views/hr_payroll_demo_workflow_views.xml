@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payroll_demo_workflow_step_kanban" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.workflow.step.kanban</field>
+        <field name="model">hr.payroll.demo.workflow.step</field>
+        <field name="arch" type="xml">
+            <kanban default_order="sequence" class="o_kanban_mobile o_hr_payroll_demo_steps_kanban">
+                <field name="sequence"/>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="status"/>
+                <field name="description"/>
+                <field name="kpi_label"/>
+                <field name="kpi_value"/>
+                <field name="duration_minutes"/>
+                <field name="button_label"/>
+                <templates>
+                    <t t-name="card" class="o_hr_payroll_demo_step_card" style="height: 100%; padding: 0.35rem;">
+                        <div class="o_hr_payroll_demo_step_top" style="height: 0.35rem; margin: -0.35rem -0.35rem 1rem; border-radius: 1rem 1rem 0 0; background: linear-gradient(90deg, #65d7ff, #8cffc1, #ffcb6b);"/>
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <div>
+                                <span class="badge text-bg-primary">
+                                    Step <field name="sequence"/>
+                                </span>
+                                <field name="name" class="d-block o_hr_payroll_demo_step_title mt-2" style="color: #0f172a; font-size: 1.05rem; font-weight: 800;"/>
+                            </div>
+                            <field name="status" widget="badge"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_step_category mb-2" style="color: #64748b; font-size: 0.78rem; font-weight: 700; text-transform: uppercase;">
+                            <field name="category"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_step_description mb-3" style="min-height: 4.5rem; color: #475569; line-height: 1.45;">
+                            <field name="description"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_metric_row" style="display: flex; justify-content: space-between; gap: 0.75rem; margin: 1rem 0; padding: 0.9rem; border-radius: 0.9rem; background: #f8fafc;">
+                            <div>
+                                <span class="o_hr_payroll_demo_metric_label" style="color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">KPI</span>
+                                <div class="o_hr_payroll_demo_metric_value" style="color: #17345c; font-weight: 800;"><field name="kpi_value"/></div>
+                            </div>
+                            <div class="text-end">
+                                <span class="o_hr_payroll_demo_metric_label" style="color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Duration</span>
+                                <div class="o_hr_payroll_demo_metric_value" style="color: #17345c; font-weight: 800;"><field name="duration_minutes"/> min</div>
+                            </div>
+                        </div>
+                        <footer class="o_hr_payroll_demo_step_footer">
+                            <button name="action_open_target" type="object" class="btn btn-primary" style="border: 0; background: linear-gradient(135deg, #875a7b, #17345c); box-shadow: 0 0.45rem 1rem rgba(135, 90, 123, 0.22);">
+                                <field name="button_label"/>
+                            </button>
+                            <button type="open" class="btn btn-secondary">Scenario</button>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_workflow_step_list" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.workflow.step.list</field>
+        <field name="model">hr.payroll.demo.workflow.step</field>
+        <field name="arch" type="xml">
+            <list decoration-success="status == 'ready'" decoration-warning="status == 'review'">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="kpi_value"/>
+                <field name="duration_minutes"/>
+                <field name="status" widget="badge"/>
+                <button name="action_open_target" type="object" string="Open Screen" class="btn-primary"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_workflow_step_form" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.workflow.step.form</field>
+        <field name="model">hr.payroll.demo.workflow.step</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_open_target" type="object" string="Open Live Odoo Screen" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="category"/>
+                            <field name="status"/>
+                            <field name="duration_minutes"/>
+                        </group>
+                        <group>
+                            <field name="dashboard_id"/>
+                            <field name="company_id"/>
+                            <field name="kpi_label"/>
+                            <field name="kpi_value"/>
+                        </group>
+                    </group>
+                    <group string="Workflow Step">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                    <group string="Presenter Script">
+                        <field name="presenter_script" nolabel="1"/>
+                    </group>
+                    <group string="Navigation Target">
+                        <field name="code"/>
+                        <field name="target_action_xmlid"/>
+                        <field name="target_model"/>
+                        <field name="target_view_mode"/>
+                        <field name="button_label"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_workflow_step_search" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.workflow.step.search</field>
+        <field name="model">hr.payroll.demo.workflow.step</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="category"/>
+                <filter name="ready" string="Ready" domain="[('status', '=', 'ready')]"/>
+                <filter name="review" string="Review" domain="[('status', '=', 'review')]"/>
+                <filter name="group_category" string="Category" context="{'group_by': 'category'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_demo_workflow_dashboard_form" model="ir.ui.view">
+        <field name="name">hr.payroll.demo.workflow.dashboard.form</field>
+        <field name="model">hr.payroll.demo.workflow.dashboard</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <header>
+                    <button name="action_start_story" type="object" string="Start Demo Story" class="btn-primary"/>
+                    <button name="action_open_workflow_steps" type="object" string="Open All Cards"/>
+                    <button name="action_refresh" type="object" string="Refresh KPIs"/>
+                </header>
+                <sheet class="o_hr_payroll_demo_workflow_sheet">
+                    <div class="o_hr_payroll_demo_hero" style="overflow: hidden; position: relative; margin-bottom: 1.5rem; padding: 2rem; border-radius: 1.5rem; color: #ffffff; background: radial-gradient(circle at 85% 20%, rgba(140, 255, 193, 0.35), transparent 18rem), radial-gradient(circle at 15% 10%, rgba(101, 215, 255, 0.35), transparent 18rem), linear-gradient(135deg, #111827 0%, #17345c 48%, #2f175f 100%); box-shadow: 0 1.4rem 3.5rem rgba(15, 23, 42, 0.22);">
+                        <div class="o_hr_payroll_demo_eyebrow" style="display: inline-flex; align-items: center; margin-bottom: 0.9rem; padding: 0.4rem 0.75rem; border-radius: 999px; color: #082032; background: linear-gradient(135deg, #65d7ff, #8cffc1); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;">Interactive Workflow Story</div>
+                        <h1 style="max-width: 55rem; margin: 0; color: #ffffff; font-size: 3rem; font-weight: 800; line-height: 0.98; letter-spacing: -0.05em;"><field name="name" readonly="1"/></h1>
+                        <p style="max-width: 46rem; margin: 1rem 0 0; color: rgba(255, 255, 255, 0.78); font-size: 1.05rem; line-height: 1.65;">
+                            Guide the demo from HR foundation to attendance, payroll, banking,
+                            accounting close, Knowledge self-service and AI-assisted policy questions.
+                            Each card opens the matching live Odoo screen.
+                        </p>
+                    </div>
+                    <div class="o_hr_payroll_demo_kpi_grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="o_hr_payroll_demo_kpi o_hr_payroll_demo_kpi_people" style="padding: 1.1rem; border: 1px solid rgba(15, 23, 42, 0.08); border-top: 0.35rem solid #65d7ff; border-radius: 1.15rem; background: #ffffff; box-shadow: 0 0.7rem 2rem rgba(15, 23, 42, 0.08);">
+                            <div class="o_hr_payroll_demo_kpi_label" style="color: #64748b; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;">Employees</div>
+                            <field name="employee_count" readonly="1"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_kpi o_hr_payroll_demo_kpi_people" style="padding: 1.1rem; border: 1px solid rgba(15, 23, 42, 0.08); border-top: 0.35rem solid #65d7ff; border-radius: 1.15rem; background: #ffffff; box-shadow: 0 0.7rem 2rem rgba(15, 23, 42, 0.08);">
+                            <div class="o_hr_payroll_demo_kpi_label" style="color: #64748b; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;">Attendance Records</div>
+                            <field name="attendance_count" readonly="1"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_kpi o_hr_payroll_demo_kpi_payroll" style="padding: 1.1rem; border: 1px solid rgba(15, 23, 42, 0.08); border-top: 0.35rem solid #8cffc1; border-radius: 1.15rem; background: #ffffff; box-shadow: 0 0.7rem 2rem rgba(15, 23, 42, 0.08);">
+                            <div class="o_hr_payroll_demo_kpi_label" style="color: #64748b; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;">Payslips</div>
+                            <field name="payslip_count" readonly="1"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_kpi o_hr_payroll_demo_kpi_finance" style="padding: 1.1rem; border: 1px solid rgba(15, 23, 42, 0.08); border-top: 0.35rem solid #ffcb6b; border-radius: 1.15rem; background: #ffffff; box-shadow: 0 0.7rem 2rem rgba(15, 23, 42, 0.08);">
+                            <div class="o_hr_payroll_demo_kpi_label" style="color: #64748b; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;">Bank Transfers</div>
+                            <field name="bank_transfer_count" readonly="1"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_kpi o_hr_payroll_demo_kpi_finance" style="padding: 1.1rem; border: 1px solid rgba(15, 23, 42, 0.08); border-top: 0.35rem solid #ffcb6b; border-radius: 1.15rem; background: #ffffff; box-shadow: 0 0.7rem 2rem rgba(15, 23, 42, 0.08);">
+                            <div class="o_hr_payroll_demo_kpi_label" style="color: #64748b; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;">Accounting Entries</div>
+                            <field name="accounting_entry_count" readonly="1"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_kpi o_hr_payroll_demo_kpi_ai" style="padding: 1.1rem; border: 1px solid rgba(15, 23, 42, 0.08); border-top: 0.35rem solid #b997ff; border-radius: 1.15rem; background: #ffffff; box-shadow: 0 0.7rem 2rem rgba(15, 23, 42, 0.08);">
+                            <div class="o_hr_payroll_demo_kpi_label" style="color: #64748b; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;">Knowledge Articles</div>
+                            <field name="knowledge_article_count" readonly="1"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_kpi o_hr_payroll_demo_kpi_finance" style="padding: 1.1rem; border: 1px solid rgba(15, 23, 42, 0.08); border-top: 0.35rem solid #ffcb6b; border-radius: 1.15rem; background: #ffffff; box-shadow: 0 0.7rem 2rem rgba(15, 23, 42, 0.08);">
+                            <div class="o_hr_payroll_demo_kpi_label" style="color: #64748b; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;">Employee Expenses</div>
+                            <field name="expense_count" readonly="1"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_kpi o_hr_payroll_demo_kpi_payroll" style="padding: 1.1rem; border: 1px solid rgba(15, 23, 42, 0.08); border-top: 0.35rem solid #8cffc1; border-radius: 1.15rem; background: #ffffff; box-shadow: 0 0.7rem 2rem rgba(15, 23, 42, 0.08);">
+                            <div class="o_hr_payroll_demo_kpi_label" style="color: #64748b; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;">Payroll Net Total</div>
+                            <field name="monthly_net_total" readonly="1"/>
+                        </div>
+                    </div>
+                    <div class="o_hr_payroll_demo_timing" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1.5rem; padding: 1rem 1.2rem; border-radius: 1rem; background: linear-gradient(135deg, rgba(101, 215, 255, 0.12), rgba(140, 255, 193, 0.12));">
+                        <span><strong>Story Duration:</strong> <field name="total_duration_minutes" readonly="1"/> minutes</span>
+                        <span><strong>Last Refresh:</strong> <field name="last_refresh" readonly="1"/></span>
+                    </div>
+                    <notebook>
+                        <page string="Workflow Story Cards">
+                            <field name="step_ids" nolabel="1" mode="kanban" context="{'default_dashboard_id': id}">
+                                <kanban default_order="sequence" class="o_kanban_mobile o_hr_payroll_demo_steps_inline">
+                                    <field name="sequence"/>
+                                    <field name="name"/>
+                                    <field name="category"/>
+                                    <field name="status"/>
+                                    <field name="description"/>
+                                    <field name="kpi_value"/>
+                                    <field name="duration_minutes"/>
+                                    <field name="button_label"/>
+                                    <templates>
+                                        <t t-name="card" class="o_hr_payroll_demo_step_card" style="height: 100%; padding: 0.35rem;">
+                                            <div class="o_hr_payroll_demo_step_top" style="height: 0.35rem; margin: -0.35rem -0.35rem 1rem; border-radius: 1rem 1rem 0 0; background: linear-gradient(90deg, #65d7ff, #8cffc1, #ffcb6b);"/>
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <span class="badge text-bg-primary">Step <field name="sequence"/></span>
+                                                <field name="status" widget="badge"/>
+                                            </div>
+                                            <field name="name" class="o_hr_payroll_demo_step_title" style="color: #0f172a; font-size: 1.05rem; font-weight: 800;"/>
+                                            <div class="o_hr_payroll_demo_step_category mt-1 mb-2" style="color: #64748b; font-size: 0.78rem; font-weight: 700; text-transform: uppercase;"><field name="category"/></div>
+                                            <div class="o_hr_payroll_demo_step_description mb-3" style="min-height: 4.5rem; color: #475569; line-height: 1.45;"><field name="description"/></div>
+                                            <div class="o_hr_payroll_demo_metric_row" style="display: flex; justify-content: space-between; gap: 0.75rem; margin: 1rem 0; padding: 0.9rem; border-radius: 0.9rem; background: #f8fafc;">
+                                                <div>
+                                                    <span class="o_hr_payroll_demo_metric_label" style="color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">KPI</span>
+                                                    <div class="o_hr_payroll_demo_metric_value" style="color: #17345c; font-weight: 800;"><field name="kpi_value"/></div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="o_hr_payroll_demo_metric_label" style="color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Duration</span>
+                                                    <div class="o_hr_payroll_demo_metric_value" style="color: #17345c; font-weight: 800;"><field name="duration_minutes"/> min</div>
+                                                </div>
+                                            </div>
+                                            <footer class="o_hr_payroll_demo_step_footer">
+                                                <button name="action_open_target" type="object" class="btn btn-primary" style="border: 0; background: linear-gradient(135deg, #875a7b, #17345c); box-shadow: 0 0.45rem 1rem rgba(135, 90, 123, 0.22);">
+                                                    <field name="button_label"/>
+                                                </button>
+                                            </footer>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payroll_demo_workflow_dashboard" model="ir.actions.act_window">
+        <field name="name">Workflow Story Dashboard</field>
+        <field name="res_model">hr.payroll.demo.workflow.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="workflow_dashboard_allnetworks"/>
+    </record>
+
+    <record id="action_hr_payroll_demo_workflow_step" model="ir.actions.act_window">
+        <field name="name">Demo Workflow Steps</field>
+        <field name="res_model">hr.payroll.demo.workflow.step</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_group_category': 1}</field>
+    </record>
+</odoo>
