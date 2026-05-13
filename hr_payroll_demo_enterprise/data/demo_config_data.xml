@@ -19,6 +19,7 @@
         <field name="duration_minutes">8</field>
         <field name="target_model">hr.department</field>
         <field name="button_label">Open Departments</field>
+        <field name="real_menu_path">Employees &gt; Configuration &gt; Departments</field>
     </record>
 
     <record id="workflow_step_02_employees" model="hr.payroll.demo.workflow.step">
@@ -33,6 +34,7 @@
         <field name="target_model">hr.employee</field>
         <field name="target_view_mode">list,kanban,form</field>
         <field name="button_label">Open Employees</field>
+        <field name="real_menu_path">Employees &gt; Employees</field>
     </record>
 
     <record id="workflow_step_03_contracts" model="hr.payroll.demo.workflow.step">
@@ -47,6 +49,7 @@
         <field name="target_action_xmlid">hr.action_hr_contract_templates</field>
         <field name="target_model">hr.version</field>
         <field name="button_label">Open Contract Templates</field>
+        <field name="real_menu_path">Employees &gt; Configuration &gt; Contract Templates</field>
     </record>
 
     <record id="workflow_step_04_training" model="hr.payroll.demo.workflow.step">
@@ -61,6 +64,7 @@
         <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_training</field>
         <field name="target_model">hr.payroll.demo.training</field>
         <field name="button_label">Open Training</field>
+        <field name="real_menu_path">Payroll Demo Enterprise &gt; Operations &gt; Training &amp; Certifications</field>
     </record>
 
     <record id="workflow_step_05_attendance" model="hr.payroll.demo.workflow.step">
@@ -75,6 +79,7 @@
         <field name="target_action_xmlid">hr_attendance.hr_attendance_action</field>
         <field name="target_model">hr.attendance</field>
         <field name="button_label">Open Attendance</field>
+        <field name="real_menu_path">Attendances &gt; Attendances</field>
     </record>
 
     <record id="workflow_step_06_time_off" model="hr.payroll.demo.workflow.step">
@@ -88,6 +93,7 @@
         <field name="duration_minutes">10</field>
         <field name="target_model">hr.leave</field>
         <field name="button_label">Open Time Off</field>
+        <field name="real_menu_path">Time Off &gt; Time Off &gt; Time Off Requests</field>
     </record>
 
     <record id="workflow_step_07_work_entries" model="hr.payroll.demo.workflow.step">
@@ -101,6 +107,7 @@
         <field name="duration_minutes">10</field>
         <field name="target_model">hr.work.entry</field>
         <field name="button_label">Open Work Entries</field>
+        <field name="real_menu_path">Payroll &gt; Work Entries</field>
     </record>
 
     <record id="workflow_step_08_payroll_batches" model="hr.payroll.demo.workflow.step">
@@ -115,6 +122,7 @@
         <field name="target_action_xmlid">hr_payroll.action_hr_payslip_run</field>
         <field name="target_model">hr.payslip.run</field>
         <field name="button_label">Open Payroll Batches</field>
+        <field name="real_menu_path">Payroll &gt; Batches</field>
     </record>
 
     <record id="workflow_step_09_payslips" model="hr.payroll.demo.workflow.step">
@@ -129,6 +137,7 @@
         <field name="target_action_xmlid">hr_payroll.action_view_hr_payslip_month_form</field>
         <field name="target_model">hr.payslip</field>
         <field name="button_label">Open Payslips</field>
+        <field name="real_menu_path">Payroll &gt; Payslips</field>
     </record>
 
     <record id="workflow_step_10_expenses" model="hr.payroll.demo.workflow.step">
@@ -143,6 +152,7 @@
         <field name="target_action_xmlid">hr_expense.action_hr_expense_account</field>
         <field name="target_model">hr.expense</field>
         <field name="button_label">Open Expenses</field>
+        <field name="real_menu_path">Expenses &gt; Expenses</field>
     </record>
 
     <record id="workflow_step_11_bank_transfer" model="hr.payroll.demo.workflow.step">
@@ -157,6 +167,7 @@
         <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_bank_transfer</field>
         <field name="target_model">hr.payroll.demo.bank.transfer</field>
         <field name="button_label">Open Bank Transfers</field>
+        <field name="real_menu_path">Payroll Demo Enterprise &gt; Operations &gt; Bank Transfers</field>
     </record>
 
     <record id="workflow_step_12_accounting" model="hr.payroll.demo.workflow.step">
@@ -171,6 +182,7 @@
         <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_accounting_entries</field>
         <field name="target_model">account.move</field>
         <field name="button_label">Open Accounting Entries</field>
+        <field name="real_menu_path">Accounting &gt; Accounting &gt; Journal Entries</field>
     </record>
 
     <record id="workflow_step_13_reconciliation" model="hr.payroll.demo.workflow.step">
@@ -185,6 +197,7 @@
         <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_reconciliation</field>
         <field name="target_model">hr.payroll.demo.reconciliation</field>
         <field name="button_label">Open Reconciliation</field>
+        <field name="real_menu_path">Payroll Demo Enterprise &gt; Reports &gt; Payroll Reconciliation</field>
     </record>
 
     <record id="workflow_step_14_knowledge" model="hr.payroll.demo.workflow.step">
@@ -199,6 +212,7 @@
         <field name="target_model">knowledge.article</field>
         <field name="target_view_mode">list,form</field>
         <field name="button_label">Open Knowledge</field>
+        <field name="real_menu_path">Knowledge &gt; Articles</field>
     </record>
 
     <record id="workflow_step_15_ai" model="hr.payroll.demo.workflow.step">
@@ -213,5 +227,6 @@
         <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_knowledge_ask</field>
         <field name="target_model">hr.payroll.demo.knowledge.ask</field>
         <field name="button_label">Ask AI</field>
+        <field name="real_menu_path">Payroll Demo Enterprise &gt; Operations &gt; Ask Knowledge AI</field>
     </record>
 </odoo>

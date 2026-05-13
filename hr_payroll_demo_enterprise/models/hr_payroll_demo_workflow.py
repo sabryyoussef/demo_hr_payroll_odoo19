@@ -105,6 +105,7 @@ class HrPayrollDemoWorkflowStep(models.Model):
     duration_minutes = fields.Integer(default=8)
     kpi_label = fields.Char()
     kpi_value = fields.Char(compute="_compute_kpi_value")
+    real_menu_path = fields.Char(help="Presenter hint showing where this screen lives in the standard Odoo menu.")
     target_action_xmlid = fields.Char()
     target_model = fields.Char()
     target_view_mode = fields.Char(default="list,form")

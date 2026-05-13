@@ -12,6 +12,7 @@
                 <field name="description"/>
                 <field name="kpi_label"/>
                 <field name="kpi_value"/>
+                <field name="real_menu_path"/>
                 <field name="duration_minutes"/>
                 <field name="button_label"/>
                 <templates>
@@ -31,6 +32,10 @@
                         </div>
                         <div class="o_hr_payroll_demo_step_description mb-3" style="min-height: 4.5rem; color: #475569; line-height: 1.45;">
                             <field name="description"/>
+                        </div>
+                        <div class="o_hr_payroll_demo_real_menu mb-3" style="padding: 0.65rem 0.8rem; border-radius: 0.75rem; color: #475569; background: #eef6ff; font-size: 0.78rem;" title="This is the real Odoo menu path for the live screen opened by this card.">
+                            <strong style="color: #17345c;">Real Odoo Menu:</strong>
+                            <field name="real_menu_path"/>
                         </div>
                         <div class="o_hr_payroll_demo_metric_row" style="display: flex; justify-content: space-between; gap: 0.75rem; margin: 1rem 0; padding: 0.9rem; border-radius: 0.9rem; background: #f8fafc;">
                             <div>
@@ -62,6 +67,7 @@
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="category"/>
+                <field name="real_menu_path"/>
                 <field name="kpi_value"/>
                 <field name="duration_minutes"/>
                 <field name="status" widget="badge"/>
@@ -108,6 +114,7 @@
                         <field name="target_action_xmlid"/>
                         <field name="target_model"/>
                         <field name="target_view_mode"/>
+                        <field name="real_menu_path"/>
                         <field name="button_label"/>
                     </group>
                 </sheet>
@@ -197,6 +204,7 @@
                                     <field name="status"/>
                                     <field name="description"/>
                                     <field name="kpi_value"/>
+                                    <field name="real_menu_path"/>
                                     <field name="duration_minutes"/>
                                     <field name="button_label"/>
                                     <templates>
@@ -209,6 +217,10 @@
                                             <field name="name" class="o_hr_payroll_demo_step_title" style="color: #0f172a; font-size: 1.05rem; font-weight: 800;"/>
                                             <div class="o_hr_payroll_demo_step_category mt-1 mb-2" style="color: #64748b; font-size: 0.78rem; font-weight: 700; text-transform: uppercase;"><field name="category"/></div>
                                             <div class="o_hr_payroll_demo_step_description mb-3" style="min-height: 4.5rem; color: #475569; line-height: 1.45;"><field name="description"/></div>
+                                            <div class="o_hr_payroll_demo_real_menu mb-3" style="padding: 0.65rem 0.8rem; border-radius: 0.75rem; color: #475569; background: #eef6ff; font-size: 0.78rem;" title="This is the real Odoo menu path for the live screen opened by this card.">
+                                                <strong style="color: #17345c;">Real Odoo Menu:</strong>
+                                                <field name="real_menu_path"/>
+                                            </div>
                                             <div class="o_hr_payroll_demo_metric_row" style="display: flex; justify-content: space-between; gap: 0.75rem; margin: 1rem 0; padding: 0.9rem; border-radius: 0.9rem; background: #f8fafc;">
                                                 <div>
                                                     <span class="o_hr_payroll_demo_metric_label" style="color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">KPI</span>
