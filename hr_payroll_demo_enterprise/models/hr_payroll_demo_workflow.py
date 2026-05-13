@@ -155,6 +155,28 @@ class HrPayrollDemoWorkflowStep(models.Model):
             "default_company_id": self.company_id.id,
         }
 
+    def _target_domain(self):
+        self.ensure_one()
+        company_id = self.company_id.id
+        company_domain = [("company_id", "=", company_id)]
+        employee_company_domain = [("employee_id.company_id", "=", company_id)]
+        domains = {
+            "company_setup": company_domain,
+            "employees": company_domain + [("active", "=", True)],
+            "training": company_domain,
+            "attendance": employee_company_domain,
+            "time_off": employee_company_domain,
+            "work_entries": employee_company_domain,
+            "payroll_batches": company_domain,
+            "payslips": company_domain,
+            "expenses": employee_company_domain,
+            "bank_transfer": company_domain,
+            "accounting": [("ref", "ilike", "ALLNETWORKS HR Accounting")],
+            "reconciliation": company_domain,
+            "ai": company_domain,
+        }
+        return domains.get(self.code, [])
+
     def _fallback_action(self):
         self.ensure_one()
         return {
@@ -162,6 +184,7 @@ class HrPayrollDemoWorkflowStep(models.Model):
             "name": self.name,
             "res_model": self.target_model or self._name,
             "view_mode": self.target_view_mode or "list,form",
+            "domain": self._target_domain(),
             "context": self._company_context(),
             "target": "current",
         }
@@ -178,5 +201,6 @@ class HrPayrollDemoWorkflowStep(models.Model):
         context = action.get("context") if isinstance(action.get("context"), dict) else {}
         context.update(self._company_context())
         action["context"] = context
+        action["domain"] = self._target_domain()
         action["target"] = "current"
         return action
