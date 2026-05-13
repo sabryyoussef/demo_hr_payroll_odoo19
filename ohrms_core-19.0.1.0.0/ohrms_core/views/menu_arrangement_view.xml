@@ -22,10 +22,6 @@
                   groups="base.group_user"
                   web_icon="hr_timesheet,static/description/icon_timesheet.png"/>
 
-        <menuitem id="hr_payroll_community.menu_hr_payroll_community_root"
-                  name="Payroll" sequence="11"
-                  web_icon="hr_payroll_community,static/description/icon.png"/>
-
         <menuitem id="hr_expense.menu_hr_expense_root"
                   name="Expenses" sequence="12"
                   web_icon="hr_expense,static/description/icon.png"/>
