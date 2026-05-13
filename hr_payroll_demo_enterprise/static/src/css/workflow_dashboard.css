@@ -1,0 +1,196 @@
+.o_hr_payroll_demo_workflow_sheet {
+    max-width: none !important;
+}
+
+.o_hr_payroll_demo_hero {
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    color: #ffffff;
+    background:
+        radial-gradient(circle at 85% 20%, rgba(140, 255, 193, 0.35), transparent 18rem),
+        radial-gradient(circle at 15% 10%, rgba(101, 215, 255, 0.35), transparent 18rem),
+        linear-gradient(135deg, #111827 0%, #17345c 48%, #2f175f 100%);
+    box-shadow: 0 1.4rem 3.5rem rgba(15, 23, 42, 0.22);
+}
+
+.o_hr_payroll_demo_hero::after {
+    content: "";
+    position: absolute;
+    right: -4rem;
+    bottom: -5rem;
+    width: 18rem;
+    height: 18rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.o_hr_payroll_demo_eyebrow {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 0.9rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    color: #082032;
+    background: linear-gradient(135deg, #65d7ff, #8cffc1);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.o_hr_payroll_demo_hero h1 {
+    max-width: 55rem;
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(2rem, 4vw, 4rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+}
+
+.o_hr_payroll_demo_hero p {
+    max-width: 46rem;
+    margin: 1rem 0 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 1.05rem;
+    line-height: 1.65;
+}
+
+.o_hr_payroll_demo_kpi_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.o_hr_payroll_demo_kpi {
+    padding: 1.1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1.15rem;
+    background: #ffffff;
+    box-shadow: 0 0.7rem 2rem rgba(15, 23, 42, 0.08);
+}
+
+.o_hr_payroll_demo_kpi .o_hr_payroll_demo_kpi_label {
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.o_hr_payroll_demo_kpi .o_field_widget,
+.o_hr_payroll_demo_kpi .o_field_monetary {
+    display: block;
+    margin-top: 0.35rem;
+    color: #0f172a;
+    font-size: 1.55rem;
+    font-weight: 800;
+}
+
+.o_hr_payroll_demo_kpi_people {
+    border-top: 0.35rem solid #65d7ff;
+}
+
+.o_hr_payroll_demo_kpi_payroll {
+    border-top: 0.35rem solid #8cffc1;
+}
+
+.o_hr_payroll_demo_kpi_finance {
+    border-top: 0.35rem solid #ffcb6b;
+}
+
+.o_hr_payroll_demo_kpi_ai {
+    border-top: 0.35rem solid #b997ff;
+}
+
+.o_hr_payroll_demo_timing {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.2rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(101, 215, 255, 0.12), rgba(140, 255, 193, 0.12));
+}
+
+.o_hr_payroll_demo_timing strong {
+    color: #17345c;
+}
+
+.o_hr_payroll_demo_steps_kanban .o_kanban_record,
+.o_hr_payroll_demo_steps_inline .o_kanban_record {
+    border: 0;
+    border-radius: 1.15rem;
+    box-shadow: 0 0.65rem 1.8rem rgba(15, 23, 42, 0.09);
+}
+
+.o_hr_payroll_demo_step_card {
+    position: relative;
+    height: 100%;
+    padding: 0.35rem;
+}
+
+.o_hr_payroll_demo_step_top {
+    height: 0.35rem;
+    margin: -0.35rem -0.35rem 1rem;
+    border-radius: 1.15rem 1.15rem 0 0;
+    background: linear-gradient(90deg, #65d7ff, #8cffc1, #ffcb6b);
+}
+
+.o_hr_payroll_demo_step_title {
+    color: #0f172a;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.o_hr_payroll_demo_step_category {
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.o_hr_payroll_demo_step_description {
+    min-height: 4.5rem;
+    color: #475569;
+    line-height: 1.45;
+}
+
+.o_hr_payroll_demo_metric_row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    padding: 0.9rem;
+    border-radius: 0.9rem;
+    background: #f8fafc;
+}
+
+.o_hr_payroll_demo_metric_label {
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.o_hr_payroll_demo_metric_value {
+    color: #17345c;
+    font-weight: 800;
+}
+
+.o_hr_payroll_demo_step_footer {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.o_hr_payroll_demo_step_footer .btn-primary {
+    border: 0;
+    background: linear-gradient(135deg, #875a7b, #17345c);
+    box-shadow: 0 0.45rem 1rem rgba(135, 90, 123, 0.22);
+}

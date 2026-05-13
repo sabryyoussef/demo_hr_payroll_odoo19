@@ -3,4 +3,215 @@
     <record id="dashboard_allnetworks_payroll" model="hr.payroll.demo.dashboard">
         <field name="name">ALLNETWORKS Payroll Operations Dashboard</field>
     </record>
+
+    <record id="workflow_dashboard_allnetworks" model="hr.payroll.demo.workflow.dashboard">
+        <field name="name">ALLNETWORKS HR Payroll Workflow Story</field>
+    </record>
+
+    <record id="workflow_step_01_company_setup" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">1</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Company &amp; Organization Setup</field>
+        <field name="code">company_setup</field>
+        <field name="category">foundation</field>
+        <field name="description">Start with ALLNETWORKS Caribbean Holdings Ltd, departments, managers and the structure that payroll will use for approvals and reporting.</field>
+        <field name="presenter_script">Show how the company is organized before payroll begins: departments, managers, work locations and the reporting structure.</field>
+        <field name="duration_minutes">8</field>
+        <field name="target_model">hr.department</field>
+        <field name="button_label">Open Departments</field>
+    </record>
+
+    <record id="workflow_step_02_employees" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">2</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Employee Master Data</field>
+        <field name="code">employees</field>
+        <field name="category">foundation</field>
+        <field name="description">Review employees by category, department, role, manager and operational workforce type.</field>
+        <field name="presenter_script">Explain that payroll accuracy starts with complete employee records: department, job, manager, work email, bank data and HR profile.</field>
+        <field name="duration_minutes">12</field>
+        <field name="target_model">hr.employee</field>
+        <field name="target_view_mode">list,kanban,form</field>
+        <field name="button_label">Open Employees</field>
+    </record>
+
+    <record id="workflow_step_03_contracts" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">3</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Contracts &amp; Salary Setup</field>
+        <field name="code">contracts</field>
+        <field name="category">foundation</field>
+        <field name="description">Use contract templates for monthly, bi-weekly, commission, shift, remote, intern and fixed-term scenarios.</field>
+        <field name="presenter_script">Open contract templates and explain how payroll rules depend on contract structure, wage, schedule and employee type.</field>
+        <field name="duration_minutes">10</field>
+        <field name="target_action_xmlid">hr.action_hr_contract_templates</field>
+        <field name="target_model">hr.version</field>
+        <field name="button_label">Open Contract Templates</field>
+    </record>
+
+    <record id="workflow_step_04_training" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">4</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Training &amp; Certification</field>
+        <field name="code">training</field>
+        <field name="category">foundation</field>
+        <field name="description">Show onboarding, safety, AML, payroll system training, IT security and certification attendance.</field>
+        <field name="presenter_script">Explain how HR proves readiness and compliance before employees enter operational shifts or sensitive finance tasks.</field>
+        <field name="duration_minutes">10</field>
+        <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_training</field>
+        <field name="target_model">hr.payroll.demo.training</field>
+        <field name="button_label">Open Training</field>
+    </record>
+
+    <record id="workflow_step_05_attendance" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">5</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Attendance Collection</field>
+        <field name="code">attendance</field>
+        <field name="category">activity</field>
+        <field name="description">Review real attendance patterns: late arrivals, overtime, weekend work, remote work and missing check-outs.</field>
+        <field name="presenter_script">Show that payroll exceptions are not entered manually in spreadsheets; they flow from attendance evidence.</field>
+        <field name="duration_minutes">12</field>
+        <field name="target_action_xmlid">hr_attendance.hr_attendance_action</field>
+        <field name="target_model">hr.attendance</field>
+        <field name="button_label">Open Attendance</field>
+    </record>
+
+    <record id="workflow_step_06_time_off" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">6</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Time Off &amp; Accruals</field>
+        <field name="code">time_off</field>
+        <field name="category">activity</field>
+        <field name="description">Show annual leave, sick leave, unpaid leave, emergency leave and accrual plans that affect payroll.</field>
+        <field name="presenter_script">Explain how approved leave changes work entries and payroll calculation without duplicate HR/payroll entry.</field>
+        <field name="duration_minutes">10</field>
+        <field name="target_model">hr.leave</field>
+        <field name="button_label">Open Time Off</field>
+    </record>
+
+    <record id="workflow_step_07_work_entries" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">7</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Work Entries Review</field>
+        <field name="code">work_entries</field>
+        <field name="category">activity</field>
+        <field name="description">Review the payroll bridge where schedules, attendance and time off become payable work entries.</field>
+        <field name="presenter_script">Use this step to prove why payroll is traceable: every payslip result can be explained from work entries.</field>
+        <field name="duration_minutes">10</field>
+        <field name="target_model">hr.work.entry</field>
+        <field name="button_label">Open Work Entries</field>
+    </record>
+
+    <record id="workflow_step_08_payroll_batches" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">8</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Payroll Batch Processing</field>
+        <field name="code">payroll_batches</field>
+        <field name="category">payroll</field>
+        <field name="description">Run monthly and bi-weekly payroll batches for different workforce scenarios.</field>
+        <field name="presenter_script">Show how payroll teams process employees in batches, review exceptions and prepare payslips for validation.</field>
+        <field name="duration_minutes">12</field>
+        <field name="target_action_xmlid">hr_payroll.action_hr_payslip_run</field>
+        <field name="target_model">hr.payslip.run</field>
+        <field name="button_label">Open Payroll Batches</field>
+    </record>
+
+    <record id="workflow_step_09_payslips" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">9</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Payslip Validation</field>
+        <field name="code">payslips</field>
+        <field name="category">payroll</field>
+        <field name="description">Review payslips with overtime, bonus, commission, loan, absence and retroactive inputs.</field>
+        <field name="presenter_script">Open payslips and explain the salary rule engine, inputs, gross-to-net calculation and validation controls.</field>
+        <field name="duration_minutes">15</field>
+        <field name="target_action_xmlid">hr_payroll.action_view_hr_payslip_month_form</field>
+        <field name="target_model">hr.payslip</field>
+        <field name="button_label">Open Payslips</field>
+    </record>
+
+    <record id="workflow_step_10_expenses" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">10</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Employee Expenses</field>
+        <field name="code">expenses</field>
+        <field name="category">finance</field>
+        <field name="description">Show employee-paid and company-paid expenses in draft, submitted, approved and refused states.</field>
+        <field name="presenter_script">Explain the finance handoff: employees submit expenses, managers approve, accounting posts reimbursements.</field>
+        <field name="duration_minutes">8</field>
+        <field name="target_action_xmlid">hr_expense.action_hr_expense_account</field>
+        <field name="target_model">hr.expense</field>
+        <field name="button_label">Open Expenses</field>
+    </record>
+
+    <record id="workflow_step_11_bank_transfer" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">11</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Salary Bank Transfer</field>
+        <field name="code">bank_transfer</field>
+        <field name="category">finance</field>
+        <field name="description">Generate the salary bank file, review employee bank lines, approve payment and track reconciliation.</field>
+        <field name="presenter_script">Show how payroll becomes a bank operation with payment lines, control totals and approval status.</field>
+        <field name="duration_minutes">10</field>
+        <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_bank_transfer</field>
+        <field name="target_model">hr.payroll.demo.bank.transfer</field>
+        <field name="button_label">Open Bank Transfers</field>
+    </record>
+
+    <record id="workflow_step_12_accounting" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">12</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Accounting Entries</field>
+        <field name="code">accounting</field>
+        <field name="category">accounting</field>
+        <field name="description">Review salary expense, payroll payable, salary bank, leave liability, loan recovery and expense reimbursement entries.</field>
+        <field name="presenter_script">Explain that payroll closes into accounting with journals and journal items that finance can audit.</field>
+        <field name="duration_minutes">12</field>
+        <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_accounting_entries</field>
+        <field name="target_model">account.move</field>
+        <field name="button_label">Open Accounting Entries</field>
+    </record>
+
+    <record id="workflow_step_13_reconciliation" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">13</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Payroll Reconciliation</field>
+        <field name="code">reconciliation</field>
+        <field name="category">accounting</field>
+        <field name="description">Match payroll totals, bank transfer totals and accounting entries, then identify exceptions.</field>
+        <field name="presenter_script">Show the finance control point after salaries are sent: matched, difference and exception scenarios.</field>
+        <field name="duration_minutes">8</field>
+        <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_reconciliation</field>
+        <field name="target_model">hr.payroll.demo.reconciliation</field>
+        <field name="button_label">Open Reconciliation</field>
+    </record>
+
+    <record id="workflow_step_14_knowledge" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">14</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Employee Knowledge Base</field>
+        <field name="code">knowledge</field>
+        <field name="category">knowledge</field>
+        <field name="description">Open policy articles for holidays, payroll, attendance, expenses, benefits, training, IT and manager approvals.</field>
+        <field name="presenter_script">Explain how employees find policy answers without asking HR for repeated basic questions.</field>
+        <field name="duration_minutes">8</field>
+        <field name="target_model">knowledge.article</field>
+        <field name="target_view_mode">list,form</field>
+        <field name="button_label">Open Knowledge</field>
+    </record>
+
+    <record id="workflow_step_15_ai" model="hr.payroll.demo.workflow.step">
+        <field name="sequence">15</field>
+        <field name="dashboard_id" ref="workflow_dashboard_allnetworks"/>
+        <field name="name">Ask Knowledge AI</field>
+        <field name="code">ai</field>
+        <field name="category">knowledge</field>
+        <field name="description">Ask policy questions against the Knowledge base with AI or the built-in Knowledge-search fallback.</field>
+        <field name="presenter_script">Close the demo by asking practical employee questions: holiday entitlement, sick leave, payslip timing and expense reimbursement.</field>
+        <field name="duration_minutes">10</field>
+        <field name="target_action_xmlid">hr_payroll_demo_enterprise.action_hr_payroll_demo_knowledge_ask</field>
+        <field name="target_model">hr.payroll.demo.knowledge.ask</field>
+        <field name="button_label">Ask AI</field>
+    </record>
 </odoo>
