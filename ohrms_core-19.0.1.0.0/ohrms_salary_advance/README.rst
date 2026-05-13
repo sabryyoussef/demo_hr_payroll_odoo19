@@ -22,10 +22,7 @@ GNU GENERAL PUBLIC LICENSE, Version 3 (LGPLv3)
 
 Credits
 -------
-Developers: (V18) Raneesha MK
-            (V17) Amaya Aravind EV
-            (V16) Sreejith P
-            (V15) Anusha P P
+Developers: (V18) Raneesha MK, (V17) Amaya Aravind EV, (V16) Sreejith P, (V15) Anusha P P
 
 Contacts
 --------
