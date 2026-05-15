@@ -66,9 +66,22 @@ LAST_NAMES = [
 
 
 def post_init_hook(env):
+    """Odoo entry point: runs once on first module install (fresh database)."""
     env = api.Environment(env.cr, SUPERUSER_ID, {})
-    if _xmlid_record(env, "company_allnetworks_caribbean"):
-        return
+    bootstrap_all_demo_data(env)
+
+
+def bootstrap_all_demo_data(env, force=False):
+    """Create the full ALLNETWORKS demo dataset (company, HR, payroll, finance, knowledge).
+
+    Called automatically by ``post_init_hook`` on first install. Safe to skip when the demo
+    company already exists unless ``force=True`` (not recommended on production DBs).
+
+    Returns True when bootstrap ran, False when skipped.
+    """
+    if not force and _xmlid_record(env, "company_allnetworks_caribbean"):
+        return False
+
     company = _create_company(env)
     _ensure_admin_company(env, company)
     structures = _prepare_payroll_structures(env)
@@ -78,30 +91,85 @@ def post_init_hook(env):
     _create_contract_templates(env, company, departments, jobs, calendars, structures)
     employees = _create_employees(env, company, departments, jobs, calendars, locations, structures, categories)
     _assign_managers(departments, employees)
+    _ensure_time_off_approvers(env, company)
     _create_bank_accounts(env, employees)
     _create_attendance(env, employees)
     _create_leave_allocations(env, employees, leave_types)
     accrual_plans = _create_accrual_plans(env, company, leave_types)
     _create_accrual_allocations(env, employees, leave_types, accrual_plans)
     _create_leaves(env, employees, leave_types)
+    _create_time_off_demo_data(env, company, employees, leave_types)
+    _ensure_demo_company_for_users(env, company)
     batches = _create_payroll(env, company, employees, structures)
     _create_sporadic_employee_scenarios(env, company, employees, categories, batches)
+    _create_salary_adjustments(env, company, employees, structures["inputs"])
+    _create_approval_demo_data(env, company)
     transfers = _create_bank_transfers(env, company, batches)
     _create_reports(env, company, departments, employees, batches, transfers)
     _create_mass_operations(env, company, departments)
     _create_scenarios(env, employees, departments)
     _create_certifications(env, employees)
+    _create_employee_activity_demo_data(env, company, employees)
+    _ensure_attendance_tracking_alerts(env, company)
+    _create_todo_demo_data(env, company)
     _create_training_sessions(env, company, employees, departments)
     _create_expenses(env, company, employees)
     _create_accounting_entries(env, company, employees, batches, transfers)
     _create_knowledge_base(env, company)
     _create_knowledge_ai_questions(env, company)
+    _finalize_demo_setup(env, company)
+    return True
+
+
+def bootstrap_supplementary_demo_data(env, company=None):
+    """Idempotent slices for DBs that already have the demo company (post-upgrade / repair).
+
+    Each helper guards on its own XML ids and can be run multiple times safely.
+    """
+    company = company or _xmlid_record(env, "company_allnetworks_caribbean")
+    if not company:
+        return False
+
+    employees = _employees_by_department(env, company)
+    leave_types = _resolve_leave_types(env, {})
+    structures = _prepare_payroll_structures(env)
+
+    _ensure_demo_company_for_users(env, company)
+    _ensure_time_off_approvers(env, company)
+    _ensure_admin_time_off_sample(env, company, leave_types)
+    _create_time_off_demo_data(env, company, employees, leave_types)
+    _create_salary_adjustments(env, company, _flatten_demo_employees(employees), structures["inputs"])
+    _create_approval_demo_data(env, company)
+    _create_employee_activity_demo_data(env, company, employees)
+    _ensure_attendance_tracking_alerts(env, company)
+    _create_todo_demo_data(env, company)
+    _finalize_demo_setup(env, company)
+    return True
+
+
+def _employees_by_department(env, company):
+    employees = {}
+    for dept_key, _name, _count, _wage in DEPARTMENTS:
+        dept = env.ref(f"{MODULE}.department_{dept_key}", raise_if_not_found=False)
+        if not dept:
+            continue
+        employees[dept_key] = env["hr.employee"].search(
+            [("company_id", "=", company.id), ("department_id", "=", dept.id)],
+            order="id",
+        )
+    return employees
+
+
+def _finalize_demo_setup(env, company):
     dashboard = env.ref(f"{MODULE}.dashboard_allnetworks_payroll", raise_if_not_found=False)
     if dashboard:
         dashboard.company_id = company
     workflow_dashboard = env.ref(f"{MODULE}.workflow_dashboard_allnetworks", raise_if_not_found=False)
     if workflow_dashboard:
         workflow_dashboard.company_id = company
+    step = env.ref(f"{MODULE}.workflow_step_06_time_off", raise_if_not_found=False)
+    if step:
+        step.write({"target_action_xmlid": f"{MODULE}.action_hr_payroll_demo_time_off_all"})
 
 
 def _xmlid_record(env, name):
@@ -167,10 +235,16 @@ def _prepare_payroll_structures(env):
         ("input_transport", "Transportation Allowance", "TRANSPORT"),
         ("input_housing", "Housing Allowance", "HOUSING"),
     ]
+    attachment_codes = {"LOAN", "RETRO", "BONUS", "OVERTIME", "COMMISSION", "ABSENCE", "TRANSPORT"}
     input_types = {}
     for xml_name, label, code in input_defs:
         input_type = env["hr.payslip.input.type"].create(
-            {"name": label, "code": code, "struct_ids": [Command.link(regular.id), Command.link(worker.id)]}
+            {
+                "name": label,
+                "code": code,
+                "struct_ids": [Command.link(regular.id), Command.link(worker.id)],
+                "available_in_attachments": code in attachment_codes,
+            }
         )
         _register_xmlid(env, input_type, xml_name)
         input_types[code] = input_type
@@ -640,6 +714,46 @@ def _assign_managers(departments, employees):
             employee.parent_id = supervisor
 
 
+def _ensure_time_off_approvers(env, company):
+    """Set time off approver so pending requests are visible in standard Time Off menus."""
+    admin = env.ref("base.user_admin", raise_if_not_found=False)
+    if not admin:
+        return
+    employees = env["hr.employee"].search([("company_id", "=", company.id), ("active", "=", True)])
+    without_approver = employees.filtered(lambda e: not e.leave_manager_id)
+    if without_approver:
+        without_approver.write({"leave_manager_id": admin.id})
+
+
+def _ensure_admin_time_off_sample(env, company, leave_types):
+    """Give the admin employee a visible time off request (My Time Off menu)."""
+    if _xmlid_record(env, "leave_demo_admin_my_request"):
+        return
+    admin = env.ref("base.user_admin", raise_if_not_found=False)
+    if not admin:
+        return
+    admin_employee = env["hr.employee"].search(
+        [("user_id", "=", admin.id), ("company_id", "=", company.id)],
+        limit=1,
+    )
+    leave_types = _resolve_leave_types(env, leave_types)
+    annual = leave_types.get("annual")
+    if not admin_employee or not annual:
+        return
+    today = fields.Date.today()
+    leave = env["hr.leave"].sudo().create(
+        {
+            "employee_id": admin_employee.id,
+            "holiday_status_id": annual.id,
+            "request_date_from": today + relativedelta(days=12),
+            "request_date_to": today + relativedelta(days=14),
+            "private_name": "Administrator annual leave — HR systems review week",
+        }
+    )
+    _register_xmlid(env, leave, "leave_demo_admin_my_request")
+    _set_leave_request_state(leave, "confirm")
+
+
 def _create_bank_accounts(env, employees):
     banks = ["CIBC FirstCaribbean", "Republic Bank", "Scotiabank", "RBC Royal Bank"]
     counter = 0
@@ -742,6 +856,443 @@ def _create_leaves(env, employees, leave_types):
             env.cr.execute("UPDATE hr_leave SET state = %s WHERE id = %s", (target_state, leave.id))
             leave.invalidate_recordset(["state"])
         _register_xmlid(env, leave, f"leave_{index:02d}")
+
+
+def _resolve_leave_types(env, leave_types):
+    """Return demo leave types keyed by annual/sick/casual/unpaid/emergency."""
+    keys = ("annual", "sick", "casual", "unpaid", "emergency")
+    resolved = dict(leave_types or {})
+    for key in keys:
+        if key in resolved and resolved[key]:
+            continue
+        record = env.ref(f"{MODULE}.leave_type_{key}", raise_if_not_found=False)
+        if record:
+            resolved[key] = record
+    return resolved
+
+
+def _set_leave_request_state(leave, target_state):
+    """Move a time off request to confirm / validate / refuse (demo-safe)."""
+    if target_state == "confirm":
+        return
+    if target_state not in ("validate", "refuse"):
+        return
+    try:
+        if target_state == "refuse":
+            leave.action_refuse()
+        else:
+            leave.action_approve(check_state=False)
+            if leave.state == "validate1":
+                leave._action_validate(check_state=False)
+    except Exception:
+        # Demo bootstrap: avoid blocking on work-entry / payroll validation rules.
+        leave.env.cr.execute(
+            "UPDATE hr_leave SET state = %s WHERE id = %s",
+            (target_state, leave.id),
+        )
+        leave.invalidate_recordset(["state"])
+
+
+def _apply_time_off_demo_defs(env, employees, leave_types, leave_defs, allocation_defs):
+    """Create time off requests and allocations from definition tuples."""
+    Leave = env["hr.leave"].sudo()
+    Allocation = env["hr.leave.allocation"].sudo()
+    today = fields.Date.today()
+    month_start = today.replace(day=1)
+    month_end = month_start + relativedelta(months=1, days=-1)
+
+    for xml_name, dept_key, emp_index, leave_key, start_offset, days, name, target_state in leave_defs:
+        if _xmlid_record(env, xml_name):
+            continue
+        dept_employees = employees.get(dept_key, [])
+        if emp_index >= len(dept_employees):
+            continue
+        leave_type = leave_types.get(leave_key)
+        if not leave_type:
+            continue
+        employee = dept_employees[emp_index]
+        date_from = today + relativedelta(days=start_offset)
+        date_to = date_from + relativedelta(days=max(days - 1, 0))
+        leave = Leave.create(
+            {
+                "employee_id": employee.id,
+                "holiday_status_id": leave_type.id,
+                "request_date_from": date_from,
+                "request_date_to": date_to,
+                "private_name": name,
+            }
+        )
+        _register_xmlid(env, leave, xml_name)
+        _set_leave_request_state(leave, target_state)
+
+    for xml_name, dept_key, emp_index, leave_key, days, name, target_state in allocation_defs:
+        if _xmlid_record(env, xml_name):
+            continue
+        dept_employees = employees.get(dept_key, [])
+        if emp_index >= len(dept_employees):
+            continue
+        leave_type = leave_types.get(leave_key)
+        if not leave_type:
+            continue
+        employee = dept_employees[emp_index]
+        allocation = Allocation.create(
+            {
+                "name": name,
+                "employee_id": employee.id,
+                "holiday_status_id": leave_type.id,
+                "number_of_days": days,
+                "date_from": month_start,
+                "date_to": month_end,
+            }
+        )
+        _register_xmlid(env, allocation, xml_name)
+        if target_state == "validate":
+            try:
+                allocation.action_approve()
+            except Exception:
+                allocation.env.cr.execute(
+                    "UPDATE hr_leave_allocation SET state = %s WHERE id = %s",
+                    ("validate", allocation.id),
+                )
+                allocation.invalidate_recordset(["state"])
+        elif target_state == "refuse":
+            try:
+                allocation.action_refuse()
+            except Exception:
+                allocation.env.cr.execute(
+                    "UPDATE hr_leave_allocation SET state = %s WHERE id = %s",
+                    ("refuse", allocation.id),
+                )
+                allocation.invalidate_recordset(["state"])
+
+
+def _create_time_off_demo_data(env, company, employees, leave_types):
+    """Extra time off requests for live demo: pending approvals, approved, refused."""
+    leave_types = _resolve_leave_types(env, leave_types)
+    if not leave_types:
+        return
+
+    leave_defs = [
+        # xmlid, dept, emp_idx, type, start_offset, days, name, state
+        (
+            "leave_demo_pending_sales_annual",
+            "sales",
+            2,
+            "annual",
+            7,
+            3,
+            "Annual leave — client visits (pending manager approval)",
+            "confirm",
+        ),
+        (
+            "leave_demo_pending_warehouse_sick",
+            "warehouse",
+            4,
+            "sick",
+            1,
+            1,
+            "Sick leave — flu symptoms (pending HR approval)",
+            "confirm",
+        ),
+        (
+            "leave_demo_pending_ops_casual",
+            "operations",
+            3,
+            "casual",
+            10,
+            2,
+            "Casual leave — family appointment (pending manager)",
+            "confirm",
+        ),
+        (
+            "leave_demo_pending_finance_unpaid",
+            "finance",
+            2,
+            "unpaid",
+            14,
+            2,
+            "Unpaid leave — personal matter (pending HR review)",
+            "confirm",
+        ),
+        (
+            "leave_demo_approved_hr_annual",
+            "hr",
+            1,
+            "annual",
+            -3,
+            2,
+            "Approved annual leave — payroll training week",
+            "validate",
+        ),
+        (
+            "leave_demo_approved_support_sick",
+            "support",
+            5,
+            "sick",
+            -7,
+            1,
+            "Approved sick leave — medical certificate on file",
+            "validate",
+        ),
+        (
+            "leave_demo_approved_executive_annual",
+            "executive",
+            0,
+            "annual",
+            21,
+            5,
+            "Approved executive annual leave — board offsite",
+            "validate",
+        ),
+        (
+            "leave_demo_refused_sales_unpaid",
+            "sales",
+            5,
+            "unpaid",
+            5,
+            3,
+            "Refused unpaid leave — peak sales period",
+            "refuse",
+        ),
+        (
+            "leave_demo_emergency_it",
+            "it",
+            1,
+            "emergency",
+            2,
+            1,
+            "Emergency leave — urgent family matter (approved)",
+            "validate",
+        ),
+        (
+            "leave_demo_payroll_week_ops",
+            "operations",
+            6,
+            "annual",
+            0,
+            1,
+            "Approved PTO during May payroll close (payroll impact demo)",
+            "validate",
+        ),
+    ]
+
+    allocation_defs = [
+        (
+            "allocation_demo_pending_sales",
+            "sales",
+            1,
+            "annual",
+            3.0,
+            "Extra annual days — Q2 project completion bonus leave",
+            "confirm",
+        ),
+        (
+            "allocation_demo_pending_warehouse",
+            "warehouse",
+            0,
+            "casual",
+            2.0,
+            "Additional casual days — peak season thank-you allocation",
+            "confirm",
+        ),
+        (
+            "allocation_demo_validated_finance",
+            "finance",
+            0,
+            "annual",
+            5.0,
+            "Carry-over annual leave balance correction",
+            "validate",
+        ),
+    ]
+
+    _apply_time_off_demo_defs(env, employees, leave_types, leave_defs, allocation_defs)
+
+    leave_defs_extra = [
+        (
+            "leave_demo2_pending_payroll_specialist",
+            "hr",
+            2,
+            "annual",
+            3,
+            2,
+            "Annual leave — payroll month-end (pending HR)",
+            "confirm",
+        ),
+        (
+            "leave_demo2_pending_dispatcher",
+            "operations",
+            1,
+            "sick",
+            0,
+            1,
+            "Sick leave — medical appointment today (pending)",
+            "confirm",
+        ),
+        (
+            "leave_demo2_pending_recruiter",
+            "hr",
+            4,
+            "casual",
+            6,
+            1,
+            "Casual leave — recruitment fair (pending manager)",
+            "confirm",
+        ),
+        (
+            "leave_demo2_approved_accountant",
+            "finance",
+            3,
+            "annual",
+            -5,
+            3,
+            "Approved annual leave — long weekend",
+            "validate",
+        ),
+        (
+            "leave_demo2_approved_warehouse_lead",
+            "warehouse",
+            1,
+            "sick",
+            -2,
+            2,
+            "Approved sick leave — back injury recovery",
+            "validate",
+        ),
+        (
+            "leave_demo2_refused_intern",
+            "temporary",
+            0,
+            "unpaid",
+            8,
+            2,
+            "Refused unpaid leave — internship coverage required",
+            "refuse",
+        ),
+        (
+            "leave_demo2_emergency_support",
+            "support",
+            0,
+            "emergency",
+            1,
+            1,
+            "Emergency leave — approved for team lead coverage",
+            "validate",
+        ),
+        (
+            "leave_demo2_june_sales_retreat",
+            "sales",
+            0,
+            "annual",
+            18,
+            4,
+            "Approved sales team retreat — June planning offsite",
+            "validate",
+        ),
+        (
+            "leave_demo2_half_day_finance",
+            "finance",
+            1,
+            "casual",
+            4,
+            1,
+            "Half-day casual leave — school event (pending)",
+            "confirm",
+        ),
+        (
+            "leave_demo2_maternity_planning",
+            "hr",
+            0,
+            "annual",
+            28,
+            5,
+            "Pre-approved annual leave — personal travel (June)",
+            "validate",
+        ),
+    ]
+
+    allocation_defs_extra = [
+        (
+            "allocation_demo2_pending_support",
+            "support",
+            3,
+            "sick",
+            1.5,
+            "Extra sick day allocation — flu season buffer",
+            "confirm",
+        ),
+        (
+            "allocation_demo2_validated_operations",
+            "operations",
+            2,
+            "annual",
+            4.0,
+            "Annual leave top-up after overtime project",
+            "validate",
+        ),
+        (
+            "allocation_demo2_refused_sales",
+            "sales",
+            4,
+            "casual",
+            5.0,
+            "Discretionary casual days request (refused — policy cap)",
+            "refuse",
+        ),
+    ]
+
+    _apply_time_off_demo_defs(env, employees, leave_types, leave_defs_extra, allocation_defs_extra)
+    _ensure_admin_time_off_sample(env, company, leave_types)
+    _create_annual_leave_demo_batch(env, company, employees, leave_types)
+
+
+def _create_annual_leave_demo_batch(env, company, employees, leave_types):
+    """Additional annual leave requests across departments for Time Off demo."""
+    if _xmlid_record(env, "leave_annual_01"):
+        return
+
+    leave_types = _resolve_leave_types(env, leave_types)
+    if not leave_types.get("annual"):
+        return
+
+    annual_defs = [
+        ("leave_annual_01", "sales", 1, "annual", 8, 4, "Annual leave — regional sales conference", "confirm"),
+        ("leave_annual_02", "sales", 4, "annual", 15, 5, "Annual leave — summer family vacation", "confirm"),
+        ("leave_annual_03", "sales", 7, "annual", 22, 3, "Annual leave — wedding travel", "confirm"),
+        ("leave_annual_04", "finance", 2, "annual", 6, 2, "Annual leave — long weekend break", "confirm"),
+        ("leave_annual_05", "finance", 5, "annual", 11, 3, "Annual leave — personal travel", "confirm"),
+        ("leave_annual_06", "hr", 3, "annual", 4, 2, "Annual leave — HR certification course week", "validate"),
+        ("leave_annual_07", "hr", 5, "annual", 9, 3, "Annual leave — approved team offsite prep", "validate"),
+        ("leave_annual_08", "support", 1, "annual", 2, 1, "Annual leave — approved Friday PTO", "validate"),
+        ("leave_annual_09", "support", 4, "annual", 7, 4, "Annual leave — approved vacation block", "validate"),
+        ("leave_annual_10", "support", 8, "annual", 16, 5, "Annual leave — approved summer leave", "validate"),
+        ("leave_annual_11", "operations", 2, "annual", 5, 3, "Annual leave — approved field project break", "validate"),
+        ("leave_annual_12", "operations", 5, "annual", 12, 2, "Annual leave — approved personal days", "validate"),
+        ("leave_annual_13", "operations", 8, "annual", 19, 4, "Annual leave — approved June vacation", "validate"),
+        ("leave_annual_14", "warehouse", 3, "annual", 3, 2, "Annual leave — approved inventory week off", "validate"),
+        ("leave_annual_15", "warehouse", 6, "annual", 10, 3, "Annual leave — approved family visit", "validate"),
+        ("leave_annual_16", "warehouse", 9, "annual", 17, 5, "Annual leave — approved summer shutdown PTO", "validate"),
+        ("leave_annual_17", "it", 2, "annual", 14, 3, "Annual leave — approved training and leave", "validate"),
+        ("leave_annual_18", "it", 4, "annual", 20, 4, "Annual leave — approved vacation", "validate"),
+        ("leave_annual_19", "executive", 1, "annual", 25, 5, "Annual leave — approved executive retreat", "validate"),
+        ("leave_annual_20", "executive", 3, "annual", -4, 2, "Annual leave — approved board prep days", "validate"),
+        ("leave_annual_21", "temporary", 1, "annual", 13, 2, "Annual leave — intern semester break", "validate"),
+        ("leave_annual_22", "sales", 10, "annual", 28, 3, "Annual leave — refused peak season request", "refuse"),
+        ("leave_annual_23", "warehouse", 11, "annual", 6, 2, "Annual leave — refused stock-count week", "refuse"),
+        ("leave_annual_24", "finance", 7, "annual", 1, 1, "Annual leave — May payroll close (approved)", "validate"),
+    ]
+
+    _apply_time_off_demo_defs(env, employees, leave_types, annual_defs, [])
+
+
+def _ensure_demo_company_for_users(env, company):
+    """Default internal users to ALLNETWORKS so Time Off records are visible."""
+    admin = env.ref("base.user_admin", raise_if_not_found=False)
+    for user in env["res.users"].search([("share", "=", False)]):
+        if company not in user.company_ids:
+            user.write({"company_ids": [Command.link(company.id)]})
+        if user == admin or not user.company_id or user.company_id.id == 1:
+            user.write({"company_id": company.id})
 
 
 def _create_leave_allocations(env, employees, leave_types):
@@ -1085,6 +1636,388 @@ def _create_sporadic_employee_scenarios(env, company, employees, categories, bat
                 }
             )
             _register_xmlid(env, scenario, f"scenario_sporadic_{index:02d}")
+
+
+def _ensure_input_types_for_salary_adjustments(env, input_types):
+    """Enable salary-adjustment usage on demo payroll input types (fresh + existing DB)."""
+    attachment_codes = {"LOAN", "RETRO", "BONUS", "OVERTIME", "COMMISSION", "ABSENCE", "TRANSPORT"}
+    code_to_xml = {
+        "OVERTIME": "input_overtime",
+        "BONUS": "input_bonus",
+        "COMMISSION": "input_commission",
+        "LOAN": "input_loan",
+        "ABSENCE": "input_absence",
+        "RETRO": "input_retro",
+        "TRANSPORT": "input_transport",
+    }
+    for code in attachment_codes:
+        input_type = input_types.get(code)
+        if not input_type:
+            input_type = _xmlid_record(env, code_to_xml[code])
+        if not input_type:
+            input_type = env["hr.payslip.input.type"].search([("code", "=", code)], limit=1)
+        if input_type and not input_type.available_in_attachments:
+            input_type.available_in_attachments = True
+        if input_type:
+            input_types[code] = input_type
+    return input_types
+
+
+def _refresh_draft_payslip_inputs(env, employees):
+    """Recompute payslip inputs so open salary adjustments appear on draft payslips."""
+    current_start = fields.Date.today().replace(day=1)
+    slips = env["hr.payslip"].search(
+        [
+            ("employee_id", "in", employees.ids),
+            ("date_from", ">=", current_start),
+            ("state", "=", "draft"),
+        ]
+    )
+    for slip in slips:
+        slip._compute_input_line_ids()
+        if slip.line_ids or slip.input_line_ids:
+            slip.compute_sheet()
+
+
+def _create_salary_adjustments(env, company, employees, input_types):
+    """Create hr.salary.attachment records for Payroll > Salary Adjustments demo."""
+    if _xmlid_record(env, "salary_adj_loan_warehouse"):
+        return
+
+    input_types = _ensure_input_types_for_salary_adjustments(env, input_types)
+    date_start = fields.Date.today().replace(day=1)
+    Attachment = env["hr.salary.attachment"]
+    affected_employees = env["hr.employee"]
+
+    # xmlid, dept, emp_index, input_code, description, monthly, total, duration, is_refund
+    adjustment_defs = [
+        (
+            "salary_adj_loan_warehouse",
+            "warehouse",
+            2,
+            "LOAN",
+            "Laptop equipment loan — 6 monthly installments",
+            125.0,
+            750.0,
+            "limited",
+            True,
+        ),
+        (
+            "salary_adj_retro_finance",
+            "finance",
+            1,
+            "RETRO",
+            "Retroactive salary after delayed promotion approval (Apr–May)",
+            650.0,
+            650.0,
+            "one",
+            False,
+        ),
+        (
+            "salary_adj_transport_operations",
+            "operations",
+            0,
+            "TRANSPORT",
+            "Offsite deployment transport allowance — May 2026",
+            280.0,
+            280.0,
+            "one",
+            False,
+        ),
+        (
+            "salary_adj_bonus_sales",
+            "sales",
+            0,
+            "BONUS",
+            "Q2 sales retention bonus — 3 payslips",
+            300.0,
+            900.0,
+            "limited",
+            False,
+        ),
+        (
+            "salary_adj_loan_executive",
+            "executive",
+            1,
+            "LOAN",
+            "Executive salary advance recovery",
+            500.0,
+            2000.0,
+            "limited",
+            True,
+        ),
+        (
+            "salary_adj_overtime_support",
+            "support",
+            2,
+            "OVERTIME",
+            "Standing on-call overtime allowance",
+            175.0,
+            None,
+            "unlimited",
+            False,
+        ),
+        (
+            "salary_adj_commission_sales",
+            "sales",
+            3,
+            "COMMISSION",
+            "Enterprise deal commission — 2 installments",
+            725.0,
+            1450.0,
+            "limited",
+            False,
+        ),
+        (
+            "salary_adj_absence_hr",
+            "hr",
+            3,
+            "ABSENCE",
+            "Unpaid absence recovery — 2 payslips",
+            80.0,
+            160.0,
+            "limited",
+            True,
+        ),
+    ]
+
+    for xml_name, dept_key, emp_index, input_code, description, monthly, total, duration, is_refund in adjustment_defs:
+        dept_employees = employees.get(dept_key, [])
+        if emp_index >= len(dept_employees):
+            continue
+        employee = dept_employees[emp_index]
+        input_type = input_types.get(input_code)
+        if not input_type:
+            continue
+
+        vals = {
+            "employee_ids": [Command.link(employee.id)],
+            "company_id": company.id,
+            "description": description,
+            "other_input_type_id": input_type.id,
+            "date_start": date_start,
+            "monthly_amount": monthly,
+            "is_refund": is_refund,
+            "state": "open",
+        }
+        if duration == "one":
+            vals["duration_type"] = "one"
+            vals["total_amount"] = total or monthly
+        elif duration == "limited":
+            vals["duration_type"] = "limited"
+            vals["total_amount"] = total or monthly
+        else:
+            vals["duration_type"] = "unlimited"
+
+        attachment = Attachment.create(vals)
+        _register_xmlid(env, attachment, xml_name)
+        affected_employees |= employee
+
+    _refresh_draft_payslip_inputs(env, affected_employees)
+
+
+def _approval_datetime(days_offset=0, hour=9):
+    day = fields.Date.today() + relativedelta(days=days_offset)
+    return datetime.combine(day, time(hour, 0))
+
+
+def _ensure_approval_categories(env, company):
+    """Point standard approval categories to ALLNETWORKS and ensure approvers exist."""
+    if "approval.category" not in env.registry:
+        return {}
+
+    admin = env.ref("base.user_admin")
+    approval_manager = env.ref("approvals.group_approval_manager", raise_if_not_found=False)
+    if approval_manager and approval_manager not in admin.group_ids:
+        admin.write({"group_ids": [Command.link(approval_manager.id)]})
+
+    category_refs = {
+        "business_trip": "approvals.approval_category_data_business_trip",
+        "borrow_items": "approvals.approval_category_data_borrow_items",
+        "general": "approvals.approval_category_data_general_approval",
+        "contract": "approvals.approval_category_data_contract_approval",
+        "payment": "approvals.approval_category_data_payment_application",
+        "car_rental": "approvals.approval_category_data_car_rental_application",
+        "procurement": "approvals.approval_category_data_procurement",
+        "job_referral": "approvals.approval_category_data_job_referral_award",
+    }
+    categories = {}
+    CategoryApprover = env["approval.category.approver"]
+    for key, xmlid in category_refs.items():
+        category = env.ref(xmlid, raise_if_not_found=False)
+        if not category:
+            continue
+        if category.company_id != company:
+            category.sudo().write({"company_id": company.id})
+        if admin not in category.approver_ids.user_id:
+            CategoryApprover.create(
+                {
+                    "category_id": category.id,
+                    "user_id": admin.id,
+                    "required": True,
+                    "sequence": 10,
+                }
+            )
+        categories[key] = category
+    return categories
+
+
+def _submit_approval_request(request):
+    if not request.approver_ids:
+        request._compute_approver_ids()
+    if len(request.approver_ids) < request.approval_minimum:
+        raise ValueError(f"Approval request {request.name!r} has insufficient approvers.")
+    request.action_confirm()
+
+
+def _set_approval_status(env, request, target_status):
+    if target_status == "new":
+        return
+    _submit_approval_request(request)
+    if target_status == "pending":
+        return
+    approver = request.approver_ids[:1]
+    if not approver:
+        return
+    approver_user = approver.user_id
+    if target_status == "approved":
+        request.with_user(approver_user).action_approve()
+    elif target_status == "refused":
+        request.with_user(approver_user).action_refuse()
+
+
+def _create_approval_demo_data(env, company):
+    """Populate Approvals app with realistic ALLNETWORKS HR/payroll demo requests."""
+    if "approval.request" not in env.registry:
+        return
+    if _xmlid_record(env, "approval_demo_trip_sales"):
+        return
+
+    categories = _ensure_approval_categories(env, company)
+    if not categories:
+        return
+
+    admin = env.ref("base.user_admin")
+    partner = company.partner_id
+    Request = env["approval.request"]
+
+    request_defs = [
+        (
+            "approval_demo_trip_sales",
+            "business_trip",
+            "pending",
+            {
+                "name": "Sales visit — Barbados enterprise client",
+                "request_owner_id": admin.id,
+                "location": "Bridgetown, Barbados",
+                "date_start": _approval_datetime(7),
+                "date_end": _approval_datetime(10),
+                "reason": "<p>Meet Caribbean Logistics for Q2 renewal and commission plan sign-off.</p>",
+            },
+        ),
+        (
+            "approval_demo_overtime_warehouse",
+            "procurement",
+            "pending",
+            {
+                "name": "Peak season warehouse overtime budget",
+                "request_owner_id": admin.id,
+                "quantity": 12.0,
+                "amount": 4680.0,
+                "reason": "<p>Approve overtime budget for May inventory count and weekend dispatch coverage.</p>",
+            },
+        ),
+        (
+            "approval_demo_borrow_safety",
+            "borrow_items",
+            "pending",
+            {
+                "name": "Borrow PPE kit for warehouse stock count",
+                "request_owner_id": admin.id,
+                "date_start": _approval_datetime(3),
+                "date_end": _approval_datetime(5),
+                "product_line_ids": [
+                    Command.create(
+                        {
+                            "description": "High-visibility vest, gloves and safety boots (size mix)",
+                            "quantity": 6,
+                        }
+                    )
+                ],
+                "reason": "<p>Equipment for weekend stock count — returned after audit.</p>",
+            },
+        ),
+        (
+            "approval_demo_car_field_ops",
+            "car_rental",
+            "approved",
+            {
+                "name": "Field service vehicle — operations coverage",
+                "request_owner_id": admin.id,
+                "date_start": _approval_datetime(1),
+                "date_end": _approval_datetime(14),
+                "reason": "<p>Temporary vehicle for multi-site customer outage response.</p>",
+            },
+        ),
+        (
+            "approval_demo_contract_intern",
+            "contract",
+            "approved",
+            {
+                "name": "Extend fixed-term finance intern contract",
+                "request_owner_id": admin.id,
+                "partner_id": partner.id,
+                "reference": "HR-CONTRACT-2026-014",
+                "amount": 1800.0,
+                "reason": "<p>Extend internship through August to support payroll UAT and expense cleanup.</p>",
+            },
+        ),
+        (
+            "approval_demo_payment_payroll_vendor",
+            "payment",
+            "approved",
+            {
+                "name": "Payroll software annual subscription",
+                "request_owner_id": admin.id,
+                "partner_id": partner.id,
+                "date": _approval_datetime(-5),
+                "amount": 12400.0,
+                "reason": "<p>Annual renewal for payroll compliance and bank payment file module.</p>",
+            },
+        ),
+        (
+            "approval_demo_referral_bonus",
+            "job_referral",
+            "refused",
+            {
+                "name": "Job referral award — warehouse supervisor",
+                "request_owner_id": admin.id,
+                "partner_id": partner.id,
+                "reason": "<p>Referral bonus request pending HR verification of probation completion.</p>",
+            },
+        ),
+        (
+            "approval_demo_general_payroll_exception",
+            "general",
+            "new",
+            {
+                "name": "Payroll exception — retro adjustment sign-off",
+                "request_owner_id": admin.id,
+                "date_start": _approval_datetime(0),
+                "amount": 650.0,
+                "reason": "<p>Manager sign-off for retroactive pay after delayed promotion approval.</p>",
+            },
+        ),
+    ]
+
+    for xml_name, category_key, target_status, vals in request_defs:
+        category = categories.get(category_key)
+        if not category:
+            continue
+        vals = dict(vals, category_id=category.id)
+        request = Request.create(vals)
+        _register_xmlid(env, request, xml_name)
+        _set_approval_status(env, request, target_status)
 
 
 def _create_bank_transfers(env, company, batches):
@@ -2566,4 +3499,318 @@ def _create_knowledge_ai_questions(env, company):
         record = Question.create({"company_id": company.id, "question": question})
         record.action_ask_ai()
         _register_xmlid(env, record, xmlid)
+
+
+def _flatten_demo_employees(employees):
+    if isinstance(employees, dict):
+        return [emp for dept_employees in employees.values() for emp in dept_employees if emp.active]
+    return list(employees)
+
+
+def _demo_activity_type(env, name):
+    return env["mail.activity.type"].search([("name", "=", name)], limit=1)
+
+
+def _create_employee_activity_demo_data(env, company, employees):
+    """Schedule HR follow-up activities on employees (Activities to track)."""
+    if _xmlid_record(env, "employee_activity_demo_00"):
+        return
+
+    employee_list = _flatten_demo_employees(employees)
+    if not employee_list:
+        employee_list = env["hr.employee"].search(
+            [("company_id", "=", company.id), ("active", "=", True)], order="id"
+        )
+    if not employee_list:
+        return
+
+    admin = env.ref("base.user_admin")
+    today = fields.Date.today()
+    admin_user = admin
+
+    activity_specs = [
+        # xmlid, employee_index, type_name, summary, day_offset, note
+        ("employee_activity_demo_00", 0, "To-Do", "90-day probation review", -8, "Complete probation assessment and manager sign-off."),
+        ("employee_activity_demo_01", 4, "Call", "Attendance pattern follow-up", -5, "Three late check-ins this month — schedule HR conversation."),
+        ("employee_activity_demo_02", 9, "Certifications", "Renew forklift operator certificate", -3, "Certification expires this month; book refresher training."),
+        ("employee_activity_demo_03", 14, "Email", "Send updated employment contract", -2, "Fixed-term renewal paperwork for payroll cutoff."),
+        ("employee_activity_demo_04", 19, "Meeting", "Performance check-in Q2", -1, "Quarterly review with department manager."),
+        ("employee_activity_demo_05", 24, "To-Do", "Verify bank account for payroll", 0, "New hire direct deposit details missing — block payslip until confirmed."),
+        ("employee_activity_demo_06", 29, "Call", "Confirm work permit documentation", 0, "Work permit scan required before next payroll run."),
+        ("employee_activity_demo_07", 34, "Certifications", "Upload safety induction certificate", 1, "Operations field staff must file HSE induction proof."),
+        ("employee_activity_demo_08", 39, "To-Do", "Complete onboarding checklist", 2, "IT access, badge, and handbook acknowledgment still outstanding."),
+        ("employee_activity_demo_09", 44, "Email", "Request medical leave documentation", 3, "Sick leave beyond 3 days — attach doctor certificate."),
+        ("employee_activity_demo_10", 49, "Meeting", "Salary adjustment approval debrief", 4, "Discuss approved transport allowance with employee."),
+        ("employee_activity_demo_11", 54, "To-Do", "Review overtime authorization", 5, "Warehouse peak season — confirm manager approval on file."),
+        ("employee_activity_demo_12", 59, "Call", "Exit interview scheduling", 6, "Fixed-term contract ending — plan knowledge transfer."),
+        ("employee_activity_demo_13", 64, "Certifications", "First aid certificate renewal", 7, "Customer support team compliance requirement."),
+        ("employee_activity_demo_14", 69, "To-Do", "Update emergency contact details", 8, "Annual HR data refresh — employee has not confirmed contacts."),
+        ("employee_activity_demo_15", 74, "Email", "Send payroll FAQ and cutoff calendar", 10, "Share May payroll timeline with department heads."),
+        ("employee_activity_demo_16", 79, "Meeting", "Discuss hybrid work arrangement", 12, "Remote/hybrid policy acknowledgment pending."),
+        ("employee_activity_demo_17", 84, "To-Do", "Investigate missing checkout", 0, "Attendance shows open shift — confirm hours before payroll."),
+        ("employee_activity_demo_18", 89, "Call", "Commission plan sign-off", 14, "Sales employee — confirm Q2 commission structure."),
+        ("employee_activity_demo_19", 94, "Certifications", "Upload professional license", 15, "Finance role requires annual compliance certificate."),
+        ("employee_activity_demo_20", 3, "To-Do", "Setup IT materials (onboarding)", 1, "Laptop, email account and Odoo access for new hire."),
+        ("employee_activity_demo_21", 3, "To-Do", "Plan onboarding training", 3, "Schedule department orientation and payroll intro session."),
+        ("employee_activity_demo_22", 7, "To-Do", "Setup IT materials (onboarding)", 1, "Warehouse temp — badge, PPE and time clock profile."),
+        ("employee_activity_demo_23", 7, "Meeting", "Onboarding training session", 5, "Safety briefing and attendance kiosk walkthrough."),
+    ]
+
+    for xmlid, emp_index, type_name, summary, day_offset, note in activity_specs:
+        employee = employee_list[emp_index % len(employee_list)]
+        activity_type = _demo_activity_type(env, type_name)
+        if not activity_type:
+            continue
+        activities = employee.activity_schedule(
+            activity_type_id=activity_type.id,
+            summary=summary,
+            note=f"<p>{escape(note)}</p>",
+            user_id=admin_user.id,
+            date_deadline=today + relativedelta(days=day_offset),
+            automated=False,
+        )
+        activity = activities[:1]
+        if activity:
+            _register_xmlid(env, activity, xmlid)
+
+    _schedule_onboarding_plan_activities(env, company, employee_list, admin_user)
+
+
+def _schedule_onboarding_plan_activities(env, company, employee_list, admin_user):
+    """Launch standard Onboarding plan on interns when managers are configured."""
+    if _xmlid_record(env, "employee_activity_onboarding_intern_00"):
+        return
+    plan = env.ref("hr.onboarding_plan", raise_if_not_found=False)
+    if not plan:
+        return
+    interns = [
+        emp
+        for emp in employee_list
+        if emp.department_id.name == "Temporary and Interns"
+    ][:2]
+    if not interns:
+        interns = env["hr.employee"].search(
+            [
+                ("company_id", "=", company.id),
+                ("department_id.name", "=", "Temporary and Interns"),
+                ("active", "=", True),
+            ],
+            limit=2,
+        )
+    today = fields.Date.today()
+    for intern_index, employee in enumerate(interns):
+        if not employee.parent_id:
+            continue
+        for template_index, template in enumerate(plan.template_ids.sorted("sequence")):
+            responsible_data = template._determine_responsible(admin_user, employee)
+            responsible = responsible_data.get("responsible")
+            if not responsible:
+                responsible = admin_user
+            activities = employee.activity_schedule(
+                activity_type_id=template.activity_type_id.id or _demo_activity_type(env, "To-Do").id,
+                summary=template.summary,
+                note=template.note,
+                user_id=responsible.id,
+                date_deadline=template._get_date_deadline(today + relativedelta(days=intern_index * 3)),
+                automated=False,
+            )
+            activity = activities[:1]
+            if activity:
+                _register_xmlid(
+                    env,
+                    activity,
+                    f"employee_activity_onboarding_intern_{intern_index:02d}_{template_index:02d}",
+                )
+
+
+def _ensure_attendance_tracking_alerts(env, company):
+    """Open check-outs for today so attendance exceptions are visible in demos."""
+    if _xmlid_record(env, "attendance_alert_open_checkout_00"):
+        return
+    Attendance = env["hr.attendance"]
+    today = fields.Date.today()
+    employees = env["hr.employee"].search(
+        [
+            ("company_id", "=", company.id),
+            ("active", "=", True),
+            ("department_id.name", "in", ["Warehouse and Logistics", "Customer Support", "Operations"]),
+        ],
+        limit=8,
+    )
+    for index, employee in enumerate(employees):
+        check_in = datetime.combine(today, time(6, 30) if index % 2 else time(8, 0))
+        attendance = Attendance.create(
+            {
+                "employee_id": employee.id,
+                "check_in": check_in,
+                "check_out": False,
+                "in_mode": "manual",
+            }
+        )
+        _register_xmlid(env, attendance, f"attendance_alert_open_checkout_{index:02d}")
+
+
+def _ensure_todo_tags(env, names):
+    Tag = env["project.tags"]
+    tags = {}
+    for name in names:
+        tag = Tag.search([("name", "=", name)], limit=1)
+        if not tag:
+            tag = Tag.create({"name": name})
+        tags[name] = tag
+    return tags
+
+
+def _create_todo_demo_data(env, company):
+    """Seed the To-Do app with ALLNETWORKS HR and payroll demo tasks."""
+    if "project.task" not in env.registry:
+        return
+    if _xmlid_record(env, "todo_demo_payroll_cutoff"):
+        return
+
+    admin = env.ref("base.user_admin")
+    today = fields.Date.today()
+    tags = _ensure_todo_tags(env, ["Payroll", "HR", "Attendance", "Finance", "Compliance"])
+
+    todo_specs = [
+        (
+            "todo_demo_payroll_cutoff",
+            "Review May payroll cutoff checklist",
+            "2",
+            -2,
+            "01_in_progress",
+            ["Payroll", "HR"],
+            "<p>Validate attendance, time off, and salary adjustments before locking the May batch.</p>",
+        ),
+        (
+            "todo_demo_bank_file",
+            "Generate and approve bank payment file",
+            "2",
+            -1,
+            "01_in_progress",
+            ["Payroll", "Finance"],
+            "<p>Export SEPA/ACH file for ALLNETWORKS May payroll and obtain finance sign-off.</p>",
+        ),
+        (
+            "todo_demo_attendance_exceptions",
+            "Clear open attendance check-outs",
+            "1",
+            0,
+            "01_in_progress",
+            ["Attendance", "Payroll"],
+            "<p>8 employees still checked in — confirm hours before payslip validation.</p>",
+        ),
+        (
+            "todo_demo_time_off_pending",
+            "Approve pending time off before payroll",
+            "1",
+            1,
+            "01_in_progress",
+            ["HR", "Payroll"],
+            "<p>Review leave requests in confirm state; accruals must post to work entries.</p>",
+        ),
+        (
+            "todo_demo_salary_adjustments",
+            "Review salary adjustment approvals",
+            "1",
+            2,
+            "01_in_progress",
+            ["Payroll", "HR"],
+            "<p>Loans, bonuses, and transport allowances — confirm amounts on draft payslips.</p>",
+        ),
+        (
+            "todo_demo_payslip_communication",
+            "Send payslip notifications to managers",
+            "0",
+            3,
+            "01_in_progress",
+            ["HR"],
+            "<p>Department heads to cascade net pay summaries after batch validation.</p>",
+        ),
+        (
+            "todo_demo_hr_accounting",
+            "Reconcile HR journal entries",
+            "0",
+            5,
+            "01_in_progress",
+            ["Finance", "Payroll"],
+            "<p>Match payroll accrual and payment moves against bank transfer demo records.</p>",
+        ),
+        (
+            "todo_demo_work_permits",
+            "Audit work permit documentation",
+            "1",
+            7,
+            "01_in_progress",
+            ["Compliance", "HR"],
+            "<p>Operations and warehouse hires — verify permits before next payroll run.</p>",
+        ),
+        (
+            "todo_demo_onboarding_interns",
+            "Complete intern onboarding checklist",
+            "0",
+            4,
+            "01_in_progress",
+            ["HR"],
+            "<p>IT access, handbook acknowledgment, and safety induction for Q2 interns.</p>",
+        ),
+        (
+            "todo_demo_board_report",
+            "Prepare monthly HR metrics for leadership",
+            "0",
+            10,
+            "01_in_progress",
+            ["HR", "Finance"],
+            "<p>Headcount, overtime, leave liability, and payroll cost vs budget.</p>",
+        ),
+        (
+            "todo_demo_approval_followup",
+            "Follow up refused approval requests",
+            "0",
+            6,
+            "01_in_progress",
+            ["HR"],
+            "<p>Job referral and exception requests — document outcome for audit trail.</p>",
+        ),
+        (
+            "todo_demo_knowledge_update",
+            "Update payroll FAQ in Knowledge",
+            "0",
+            8,
+            "1_done",
+            ["HR"],
+            "<p>Added May cutoff calendar and sporadic payout guidance to the handbook.</p>",
+        ),
+        (
+            "todo_demo_duplicate_payslips",
+            "Resolve duplicate draft payslip warnings",
+            "2",
+            0,
+            "1_done",
+            ["Payroll"],
+            "<p>Cancelled duplicate drafts; kept intentional test cases for demo storytelling.</p>",
+        ),
+    ]
+
+    for xmlid, name, priority, day_offset, state, tag_names, description in todo_specs:
+        tag_ids = [tags[tag_name].id for tag_name in tag_names if tag_name in tags]
+        deadline = datetime.combine(
+            today + relativedelta(days=day_offset),
+            time(17, 0),
+        )
+        task = env["project.task"].create(
+            {
+                "name": name,
+                "project_id": False,
+                "company_id": company.id,
+                "user_ids": [Command.set([admin.id])],
+                "priority": priority,
+                "date_deadline": deadline,
+                "description": description,
+                "tag_ids": [Command.set(tag_ids)],
+            }
+        )
+        if state != "01_in_progress":
+            task.write({"state": state})
+        _register_xmlid(env, task, xmlid)
 

@@ -1,6 +1,6 @@
 {
     "name": "HR Payroll Demo Enterprise",
-    "version": "19.0.1.0.3",
+    "version": "19.0.1.0.7",
     "category": "Human Resources/Payroll",
     "summary": "Production-grade HR, attendance, payroll, banking and mass operations demo",
     "description": (
@@ -14,6 +14,7 @@
     "installable": True,
     "application": True,
     "depends": [
+        "approvals",
         "hr_payroll_account",
         "account",
         "hr_attendance",
@@ -21,12 +22,14 @@
         "hr_skills",
         "hr_expense",
         "knowledge",
+        "project_todo",
     ],
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
         "data/hr_leave_type_compat.xml",
         "data/demo_config_data.xml",
+        "data/demo_time_off_actions.xml",
         "views/hr_payroll_demo_bank_transfer_views.xml",
         "views/hr_payroll_demo_mass_operation_views.xml",
         "views/hr_payroll_demo_dashboard_views.xml",
