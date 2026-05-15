@@ -24,6 +24,23 @@ ALLNETWORKS Caribbean Holdings Ltd is a medium-size regional operations company 
 
 The goal is to prove that Odoo can handle the full payroll operation without spreadsheets: HR owns employee data, managers control exceptions, payroll calculates pay, finance sends salary transfers, and accounting closes the month.
 
+## Installation and Odoo.sh
+
+All demo records are created from **`hooks.py`** (`bootstrap_all_demo_data`), not from static XML dumps.
+
+| Situation | What happens |
+| --- | --- |
+| **Fresh database** + install this module | `post_init_hook` runs once and loads the full demo (~97 employees, payroll, time off, knowledge, activities, to-dos, etc.). |
+| **Odoo.sh** after monthly DB reset | Same as fresh install: push this repo, install **HR Payroll Demo Enterprise**, switch company to **ALLNETWORKS Caribbean Holdings Ltd**. |
+| **Upgrade** (`-u`) on existing DB | Hook does **not** re-run; use `scripts/bootstrap_demo.py --supplementary` or Odoo shell (see `ODOO_SH.md`). |
+
+Detailed Odoo.sh steps: **[ODOO_SH.md](ODOO_SH.md)**
+
+```bash
+# Repair / add newer demo slices on an existing ALLNETWORKS database:
+python hr_payroll_demo_enterprise/scripts/bootstrap_demo.py -c /path/to/odoo.conf -d YOURDB --supplementary
+```
+
 ## Demo Scale
 
 | Area | Demo volume |
